@@ -5,3 +5,7 @@ PID.*
 kill.sh
 restart.sh
 *.debug.js
+
+Adafruit_Python_GPIO/
+Adafruit_Python_MAX31855/
+ivPID/
