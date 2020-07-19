@@ -12,7 +12,15 @@ if [[ $(whoami) != 'root' ]]; then
   exit -1
 fi
 
-apt-get -y install rpi-update git build-essential python-dev python-smbus python-pip logrotate
+apt-get -y install rpi-update git build-essential python-dev python-smbus python-pip logrotate vim tmux
+
+echo "Enable ssh"
+sudo systemctl enable ssh
+sudo systemctl start ssh
+
+MYIP=$(hostname -I | cut -f1 -d ' ')
+echo "Print+log the IP: ${MYIP}"
+echo "$MYIP" >> ip.log
 
 echo "Installing logrotate config..."
 cp $BASEDIR/silvia-pi-logrotate /etc/logrotate.d
