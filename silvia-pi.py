@@ -99,7 +99,7 @@ def he_control_loop(dummy,state):
     GPIO.output(conf.he_pin,0)
     GPIO.cleanup()
 
-def pid_loop(dummy,state):
+def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
   import sys
   from time import sleep, time
   from math import isnan
@@ -107,6 +107,7 @@ def pid_loop(dummy,state):
   import Adafruit_MAX31855.MAX31855 as MAX31855
   import PID as PID
   import config as conf
+  from dummy import DummyPID, DummySensor, DummySPI
 
   #sys.stdout = open("pid.log", "a")
   #sys.stderr = open("pid.err.log", "a")
@@ -114,9 +115,13 @@ def pid_loop(dummy,state):
   def c_to_f(c):
     return c * 9.0 / 5.0 + 32.0
 
-  sensor = MAX31855.MAX31855(spi=SPI.SpiDev(conf.spi_port, conf.spi_dev))
+  spi_constructor = SPI.SpiDev if temp_readings_enabled else DummySPI
+  sensor_constructor = MAX31855.MAX31855 if temp_readings_enabled else DummySensor
+  pid_constructor = PID.PID if pid_enabled else DummyPID
 
-  pid = PID.PID(conf.Pc,conf.Ic,conf.Dc)
+  sensor = sensor_constructor(spi=spi_constructor(conf.spi_port, conf.spi_dev)) 
+
+  pid = pid_constructor(conf.Pc,conf.Ic,conf.Dc)
   pid.SetPoint = state['settemp']
   pid.setSampleTime(conf.sample_time*5)
 
@@ -158,13 +163,13 @@ def pid_loop(dummy,state):
           lastwarm = i
 
         if iscold and (i-lastcold)*conf.sample_time > 60*15 :
-          pid = PID.PID(conf.Pw,conf.Iw,conf.Dw)
+          pid = pid_constructor(conf.Pw,conf.Iw,conf.Dw)
           pid.SetPoint = state['settemp']
           pid.setSampleTime(conf.sample_time*5)
           iscold = False
 
         if iswarm and (i-lastwarm)*conf.sample_time > 60*15 : 
-          pid = PID.PID(conf.Pc,conf.Ic,conf.Dc)
+          pid = pid_constructor(conf.Pc,conf.Ic,conf.Dc)
           pid.SetPoint = state['settemp']
           pid.setSampleTime(conf.sample_time*5)
           iscold = True
@@ -203,7 +208,7 @@ def pid_loop(dummy,state):
         lasttime = time()
 
     finally:
-      pid.clear
+      pid.clear()
 
 def rest_server(dummy,state):
   from bottle import route, run, get, post, request, static_file, abort
@@ -302,11 +307,27 @@ def rest_server(dummy,state):
     print("running the server now...",file=fweb)
     run(host='0.0.0.0',port=conf.port,server='cheroot')
 
+def is_alive(args, p, h, r, s):
+  return (not args.with_scheduler or s.is_alive())\
+            and (not args.with_pid or p.is_alive())\
+            and (not args.with_he or h.is_alive())\
+            and (not args.with_server or r.is_alive())
+
 if __name__ == '__main__':
   from multiprocessing import Process, Manager
   from time import sleep
   from urllib.request import urlopen
   import config as conf
+  import argparse
+
+  parser = argparse.ArgumentParser(description="Start the server")
+  parser.add_argument("--with-scheduler", type=bool, default=True, required=False, help="Indicates whether or not scheduler should be started")
+  parser.add_argument("--with-temp", type=bool, default=False, required=False, help="Indicates whether or not temperature reading will be taken from the MAX31855")
+  parser.add_argument("--with-pid", type=bool, default=False, required=False, help="Indicates whether or not PID controller should be started")
+  parser.add_argument("--with-he", type=bool, default=False, required=False, help="Indicates whether or not HE Controller should be started")
+  parser.add_argument("--with-server", type=bool, default=True, required=False, help="Indicates whether or not server should be started")
+  args = parser.parse_args()
+  print("CLI Args:",args)
 
   manager = Manager()
   pidstate = manager.dict()
@@ -318,25 +339,37 @@ if __name__ == '__main__':
   pidstate['settemp'] = conf.set_temp
   pidstate['avgpid'] = 0.
 
-  print("Starting Scheduler thread...")
-  s = Process(target=scheduler,args=(1,pidstate))
-  s.daemon = True
-  s.start()
+  if args.with_scheduler:
+    print("Starting Scheduler thread...")
+    s = Process(target=scheduler,args=(1,pidstate))
+    s.daemon = True
+    s.start()
+  else:
+    s = None
 
-  print("Starting PID thread...")
-  p = Process(target=pid_loop,args=(1,pidstate))
-  p.daemon = True
-  p.start()
+  if args.with_pid or args.with_temp:
+    print("Starting PID thread... Temp readings enabled={}, PID enabled={}".format(args.with_temp, args.with_pid))
+    p = Process(target=pid_loop,args=(1,pidstate, args.with_temp, args.with_pid))
+    p.daemon = True
+    p.start()
+  else:
+    p = None
 
-  print("Starting HE Control thread...")
-  h = Process(target=he_control_loop,args=(1,pidstate))
-  h.daemon = True
-  h.start()
+  if args.with_he:
+    print("Starting HE Control thread...")
+    h = Process(target=he_control_loop,args=(1,pidstate))
+    h.daemon = True
+    h.start()
+  else:
+    h = None
 
-  print("Starting REST Server thread...")
-  r = Process(target=rest_server,args=(1,pidstate))
-  r.daemon = True
-  r.start()
+  if args.with_server:
+    print("Starting REST Server thread...")
+    r = Process(target=rest_server,args=(1,pidstate))
+    r.daemon = True
+    r.start()
+  else:
+    r = None
 
   #Start Watchdog loop
   print("Starting Watchdog...")
@@ -348,17 +381,16 @@ if __name__ == '__main__':
   lasti = pidstate['i']
   sleep(1)
 
-  while p.is_alive() and h.is_alive() and r.is_alive() and s.is_alive():
-  #while r.is_alive():
+  while is_alive(args, p, h, r, s):
     curi = pidstate['i']
-    if curi == lasti :
+    if curi == lasti:
       piderr = piderr + 1
-    else :
+    else:
       piderr = 0
 
     lasti = curi
 
-    if piderr > 9 :
+    if piderr > 9 and args.with_pid:
       print('ERROR IN PID THREAD, RESTARTING')
       p.terminate()
 
@@ -370,10 +402,10 @@ if __name__ == '__main__':
       if hc.getcode() != 200 :
         weberrflag = 1
 
-    if weberrflag != 0 :
+    if weberrflag != 0:
       weberr = weberr + 1
 
-    if weberr > 9 :
+    if weberr > 9 and args.with_server:
       print('ERROR IN WEB SERVER THREAD, RESTARTING')
       r.terminate()
 
