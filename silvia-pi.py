@@ -2,6 +2,7 @@ from multiprocessing import Process, Manager
 from time import sleep
 import config as conf
 import argparse
+import os
 
 from control.schedule import scheduler
 from control.temp_and_pid import pid_loop
@@ -55,10 +56,11 @@ if __name__ == '__main__':
 
     if args.with_server:
         print("Starting REST Server thread...")
-        r = Process(target=rest_server,args=(1,pidstate))
+        basedir = os.path.dirname(os.path.realpath(__file__))
+        r = Process(target=rest_server,args=(1, pidstate, basedir))
         r.daemon = True
         r.start()
     else:
         r = None
 
-    watch(pidstate)
+    watch(args, p, h, r, s, pidstate)

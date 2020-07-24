@@ -2,9 +2,8 @@ from bottle import route, run, get, post, request, static_file, abort
 from subprocess import call
 from datetime import datetime
 import config as conf
-import os
 
-def rest_server(dummy,state):
+def rest_server(dummy, state, basedir):
 
     @route('/')
     def docroot():
@@ -89,7 +88,6 @@ def rest_server(dummy,state):
 
     with open('webserver.log','a') as fweb:
         print('derp',file=fweb)
-        basedir = os.path.dirname(os.path.realpath(__file__))
         print("basedir:",basedir,file=fweb)
         wwwdir = basedir+'/www/'
         print("wwwdir:",wwwdir,file=fweb)

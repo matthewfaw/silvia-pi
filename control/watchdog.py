@@ -1,13 +1,14 @@
 from urllib.request import urlopen
 import config as conf
+from time import sleep
 
 def _is_alive(args, p, h, r, s):
     return (not args.with_scheduler or s.is_alive())\
-            and (not args.with_pid or p.is_alive())\
+            and (not (args.with_pid or args.with_temp) or p.is_alive())\
             and (not args.with_he or h.is_alive())\
             and (not args.with_server or r.is_alive())
 
-def watch(pidstate):
+def watch(args, p, h, r, s, pidstate):
     print("Starting Watchdog...")
     piderr = 0
     weberr = 0
