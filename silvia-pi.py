@@ -103,11 +103,11 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
   import sys
   from time import sleep, time
   from math import isnan
-  import Adafruit_GPIO.SPI as SPI
-  import Adafruit_MAX31855.MAX31855 as MAX31855
+  import board, busio, digitalio, adafruit_max31855
   import PID as PID
   import config as conf
-  from dummy import DummyPID, DummySensor, DummySPI
+  from dummy import DummyPID, DummySensor, DummyDigitalIO, DummySPI
+  from collections import deque
 
   #sys.stdout = open("pid.log", "a")
   #sys.stderr = open("pid.err.log", "a")
@@ -115,11 +115,15 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
   def c_to_f(c):
     return c * 9.0 / 5.0 + 32.0
 
-  spi_constructor = SPI.SpiDev if temp_readings_enabled else DummySPI
-  sensor_constructor = MAX31855.MAX31855 if temp_readings_enabled else DummySensor
+  spi_constructor = busio.SPI if temp_readings_enabled else DummySPI
+  cs_constructor = digitalio.DigitalInOut if temp_readings_enabled else DummyDigitalIO
+  sensor_constructor = adafruit_max31855.MAX31855 if temp_readings_enabled else DummySensor
+
   pid_constructor = PID.PID if pid_enabled else DummyPID
 
-  sensor = sensor_constructor(spi=spi_constructor(conf.spi_port, conf.spi_dev)) 
+  spi = spi_constructor(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
+  cs = cs_constructor(board.D8)
+  sensor = sensor_constructor(spi=spi, cs=cs) 
 
   pid = pid_constructor(conf.Pc,conf.Ic,conf.Dc)
   pid.SetPoint = state['settemp']
@@ -128,9 +132,9 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
   nanct=0
   i=0
   j=0
-  pidhist = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+  pidhist = deque([0.]*10)
   avgpid = 0.
-  temphist = [0.,0.,0.,0.,0.]
+  temphist = deque([0.]*5)
   avgtemp = 0.
   lastsettemp = state['settemp']
   lasttime = time()
@@ -143,7 +147,7 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
   with open('pid.log','a') as fpid:
     try:
       while True : # Loops 10x/second
-        tempc = sensor.readTempC()
+        tempc = sensor.temperature
         if isnan(tempc) :
           nanct += 1
           if nanct > 100000 :
@@ -153,7 +157,8 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
           nanct = 0
 
         tempf = c_to_f(tempc)
-        temphist[i%5] = tempf
+        temphist.popleft()
+        temphist.append(tempf)
         avgtemp = sum(temphist)/len(temphist)
 
         if avgtemp < 100 :
@@ -181,7 +186,8 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
         if i%10 == 0 :
           pid.update(avgtemp)
           pidout = pid.output
-          pidhist[i/10%10] = pidout
+          pidhist.popleft()
+          pidhist.append(pidout)
           avgpid = sum(pidhist)/len(pidhist)
 
         state['i'] = i

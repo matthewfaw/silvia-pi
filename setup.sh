@@ -12,11 +12,16 @@ if [[ $(whoami) != 'root' ]]; then
   exit -1
 fi
 
+echo "Installing some useful packages"
 apt-get -y install rpi-update git build-essential python-dev python-smbus python-pip logrotate vim tmux
 
 echo "Enable ssh"
-sudo systemctl enable ssh
-sudo systemctl start ssh
+systemctl enable ssh
+systemctl start ssh
+
+echo "Enable SPI -- this will require system reboot to take effect"
+echo "Note that, after rebooting, you should see device /dev/spidev0.0"
+sed -i "s/#dtparam=spi=on/dtparam=spi=on/g" /boot/config.txt
 
 MYIP=$(hostname -I | cut -f1 -d ' ')
 echo "Print+log the IP: ${MYIP}"
@@ -24,18 +29,6 @@ echo "$MYIP" >> ip.log
 
 echo "Installing logrotate config..."
 cp $BASEDIR/silvia-pi-logrotate /etc/logrotate.d
-
-echo "Installing Adafruit GPIO library..."
-git clone https://github.com/adafruit/Adafruit_Python_GPIO.git
-cd Adafruit_Python_GPIO
-python3 setup.py install
-cd ..
-
-echo "Installing MAX31855 Thermocouple Amp library..."
-git clone https://github.com/adafruit/Adafruit_Python_MAX31855.git
-cd Adafruit_Python_MAX31855
-python3 setup.py install
-cd ..
 
 echo "Installing ivPID library..."
 git clone https://github.com/ivmech/ivPID.git

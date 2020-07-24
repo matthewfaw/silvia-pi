@@ -26,9 +26,15 @@ class DummySPI:
         print("WARNING: Dummy SPI is being used. No actions will be taken..")
 
 
+class DummyDigitalIO:
+    def __init__(self, iopin):
+        print("WARNING: Dummy DigitalIO is being used. The returned temperatures will all be 0 C.")
+        self.gpiopin = iopin
+
 class DummySensor:
     def __init__(self, spi):
         print("WARNING: Dummy sensor is being used. The returned temperatures will all be 0 C.")
+        self.temperature = 0.
 
     def readTempC(self):
         # do nothing
