@@ -1,5 +1,6 @@
 silvia-pi.log*
 *.log
+*.out
 *.pyc
 PID.*
 kill.sh

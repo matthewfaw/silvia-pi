@@ -11,9 +11,6 @@ def _gotosleep(dummy,state):
 
 def scheduler(dummy,state):
 
-    #sys.stdout = open("scheduler.log", "a")
-    #sys.stderr = open("scheduler.err.log", "a")
-
     with open("scheduler.log", "a") as fsch:
         print("Starting scheduler thread ...", file=fsch)
 
