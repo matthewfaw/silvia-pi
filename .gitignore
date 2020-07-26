@@ -1,5 +1,4 @@
-silvia-pi.log*
-*.log
+*.log*
 *.out
 *.pyc
 PID.*

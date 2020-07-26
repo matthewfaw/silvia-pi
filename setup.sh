@@ -21,7 +21,7 @@ systemctl start ssh
 
 echo "Enable SPI -- this will require system reboot to take effect"
 echo "Note that, after rebooting, you should see device /dev/spidev0.0"
-sed -i "s/#dtparam=spi=on/dtparam=spi=on/g" /boot/config.txt
+sed -i.bak "s/#dtparam=spi=on/dtparam=spi=on/g" /boot/config.txt
 
 MYIP=$(hostname -I | cut -f1 -d ' ')
 echo "Print+log the IP: ${MYIP}"
@@ -43,9 +43,7 @@ pip3 install --upgrade -r $BASEDIR/requirements.txt
 
 if ! grep silvia-pi.py /etc/rc.local; then
   echo "Adding entry to /etc/rc.local"
-  cp /etc/rc.local /etc/rc.local.bak
-  cat /etc/rc.local | sed 's|^exit 0$|'"${BASEDIR}"'/silvia-pi.py > '"${BASEDIR}"'/silvia-pi.log 2>\&1 \&\n\nexit 0|g' > /etc/rc.local.new
-  mv /etc/rc.local.new /etc/rc.local
+  sed -i.bak 's|^exit 0$|'"${BASEDIR}"'/silvia-pi.py --with-scheduler "T" --with-temp "T" --with-pid "T" --with-he "T" --with-server "T" > '"${BASEDIR}"'/silvia-pi.log 2>\&1 \&\n\nexit 0|g' /etc/rc.local
   chmod 755 /etc/rc.local
 else
   echo "Skipping /etc/rc.local modification since entry already found"
