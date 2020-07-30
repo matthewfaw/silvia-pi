@@ -87,7 +87,6 @@ def rest_server(dummy, state, basedir):
         return 'OK'
 
     with open('webserver.log','a') as fweb:
-        print('derp',file=fweb)
         print("basedir:",basedir,file=fweb)
         wwwdir = basedir+'/www/'
         print("wwwdir:",wwwdir,file=fweb)

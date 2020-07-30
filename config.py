@@ -12,11 +12,11 @@ set_temp = 221.
 
 # Default sleep/wake times
 sched_enabled = True
-wake_time = '06:30'
-sleep_time = '10:00'
+wake_time = '07:45'
+sleep_time = '9:45'
 
 # Main loop sample rate in seconds
-sample_time = 0.1
+sample_time = 0.5
 
 # PID Proportional, Integral, and Derivative values
 Pc = 3.4
