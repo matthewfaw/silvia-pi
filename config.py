@@ -13,10 +13,10 @@ set_temp = 221.
 # Default sleep/wake times
 sched_enabled = True
 wake_time = '07:45'
-sleep_time = '9:45'
+sleep_time = '09:45'
 
 # Main loop sample rate in seconds
-sample_time = 0.5
+sample_time = 0.2
 
 # PID Proportional, Integral, and Derivative values
 Pc = 3.4
@@ -24,8 +24,11 @@ Ic = 0.3
 Dc = 40.0
 
 Pw = 2.9
-Iw = 0.3
+Iw = 0.03
 Dw = 40.0
+#Pw = 1.1
+#Iw = 0.01
+#Dw = 11.0
 
 #Web/REST Server Options
 port = 8080
