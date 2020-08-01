@@ -25,7 +25,7 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
 
     pid = pid_constructor(conf.Pc,conf.Ic,conf.Dc)
     pid.SetPoint = state['settemp']
-    pid.setSampleTime(conf.sample_time*5)
+    pid.setSampleTime(conf.sample_time)
 
     nanct=0
     i=0
@@ -35,8 +35,6 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
     temphist = deque([0.]*5)
     avgtemp = 0.
     lastsettemp = state['settemp']
-    lasttime = time()
-    sleeptime = 0
     iscold = True
     iswarm = False
     lastcold = 0
@@ -44,11 +42,12 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
 
     with open('pid.log','a') as fpid:
         try:
-            while True : # Loops 10x/second
+            while True: # Loops 10x/second
+                # Get the temp
                 tempc = sensor.temperature
-                if isnan(tempc) :
+                if isnan(tempc):
                     nanct += 1
-                    if nanct > 100000 :
+                    if nanct > 100000:
                         sys.exit
                     continue
                 else:
@@ -59,34 +58,33 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
                 temphist.append(tempf)
                 avgtemp = sum(temphist)/len(temphist)
 
-                if avgtemp < 100 :
+                if avgtemp < 100:
                     lastcold = i
 
-                if avgtemp > 200 :
+                if avgtemp > 200:
                     lastwarm = i
 
-                if iscold and (i-lastcold)*conf.sample_time > 60*15 :
+                if iscold and (i-lastcold)*conf.sample_time > 60*15:
                     pid = pid_constructor(conf.Pw,conf.Iw,conf.Dw)
                     pid.SetPoint = state['settemp']
-                    pid.setSampleTime(conf.sample_time*5)
+                    pid.setSampleTime(conf.sample_time)
                     iscold = False
 
-                if iswarm and (i-lastwarm)*conf.sample_time > 60*15 : 
+                if iswarm and (i-lastwarm)*conf.sample_time > 60*15: 
                     pid = pid_constructor(conf.Pc,conf.Ic,conf.Dc)
                     pid.SetPoint = state['settemp']
-                    pid.setSampleTime(conf.sample_time*5)
+                    pid.setSampleTime(conf.sample_time)
                     iscold = True
 
-                if state['settemp'] != lastsettemp :
+                if state['settemp'] != lastsettemp:
                     pid.SetPoint = state['settemp']
                     lastsettemp = state['settemp']
 
-                if i%10 == 0 :
-                    pid.update(avgtemp)
-                    pidout = pid.output
-                    pidhist.popleft()
-                    pidhist.append(pidout)
-                    avgpid = sum(pidhist)/len(pidhist)
+                pid.update(avgtemp)
+                pidout = pid.output
+                pidhist.popleft()
+                pidhist.append(pidout)
+                avgpid = sum(pidhist)/len(pidhist)
 
                 state['i'] = i
                 state['tempf'] = round(tempf,2)
@@ -94,22 +92,18 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
                 state['pidval'] = round(pidout,2)
                 state['avgpid'] = round(avgpid,2)
                 state['pterm'] = round(pid.PTerm,2)
-                if iscold :
+                if iscold:
                     state['iterm'] = round(pid.ITerm * conf.Ic,2)
                     state['dterm'] = round(pid.DTerm * conf.Dc,2)
-                else :
+                else:
                     state['iterm'] = round(pid.ITerm * conf.Iw,2)
                     state['dterm'] = round(pid.DTerm * conf.Dw,2)
                 state['iscold'] = iscold
 
-                #print(time(), state, file=fpid)
+                print(time(), state, file=fpid)
 
-                sleeptime = lasttime+conf.sample_time-time()
-                if sleeptime < 0 :
-                    sleeptime = 0
-                sleep(sleeptime)
+                sleep(conf.sample_time)
                 i += 1
-                lasttime = time()
 
         finally:
             pid.clear()
