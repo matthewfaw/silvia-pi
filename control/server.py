@@ -51,21 +51,23 @@ def rest_server(dummy, state, basedir):
     @post('/setwake')
     def set_wake():
         wake = request.forms.get('wake')
+        weekday_or_weekend = "weekday" if request.forms.get('weekday') == "True" else "weekend"
         try:
             datetime.strptime(wake,'%H:%M')
         except:
             abort(400,'Invalid time format.')
-        state['wake_time'] = wake
+        state['{}_wake_time'.format(weekday_or_weekend)] = wake
         return str(wake)
 
     @post('/setsleep')
     def set_sleep():
         sleep = request.forms.get('sleep')
+        weekday_or_weekend = "weekday" if request.forms.get('weekday') == "True" else "weekend"
         try:
             datetime.strptime(sleep,'%H:%M')
         except:
             abort(400,'Invalid time format.')
-        state['sleep_time'] = sleep
+        state['{}_sleep_time'.format(weekday_or_weekend)] = sleep
         return str(sleep)
 
     @get('/allstats')

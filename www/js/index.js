@@ -16,8 +16,10 @@ function refreshinputs() {
     timeout: 500,
     success: function ( resp ) {
       $("#inputSetTemp").val( resp.settemp );
-      $("#inputSleep").val( resp.sleep_time );
-      $("#inputWake").val( resp.wake_time );
+      $("#inputWeekdaySleep").val( resp.weekday_sleep_time );
+      $("#inputWeekdayWake").val( resp.weekday_wake_time );
+      $("#inputWeekendSleep").val( resp.weekend_sleep_time );
+      $("#inputWeekendWake").val( resp.weekend_wake_time );
     }
   });
 }
@@ -71,36 +73,70 @@ $(document).ready(function(){
     );
   });
 
-  $("#inputSleep").change(function(){
+  $("#inputWeekdaySleep").change(function(){
     $.post(
       "/setsleep",
-      { sleep: $("#inputSleep").val() }
+      { 
+          sleep: $("#inputWeekdaySleep").val(),
+          weekday: "True"
+      }
     );
   });
 
-  $("#inputWake").change(function(){
+  $("#inputWeekendSleep").change(function(){
+    $.post(
+      "/setsleep",
+      { 
+          sleep: $("#inputWeekendSleep").val(),
+          weekday: "False"
+      }
+    );
+  });
+
+  $("#inputWeekdayWake").change(function(){
     $.post(
       "/setwake",
-      { wake: $("#inputWake").val() }
+      { 
+          wake: $("#inputWeekdayWake").val(),
+          weekday: "True"
+      }
+    );
+  });
+
+  $("#inputWeekendWake").change(function(){
+    $.post(
+      "/setwake",
+      { 
+          wake: $("#inputWeekendWake").val(),
+          weekday: "False"
+      }
     );
   });
 
   $("#btnTimerDisable").click(function(){
     $.post("/scheduler",{ scheduler: "False" });
-    $("#inputWake").hide();
-    $("#labelWake").hide();
-    $("#inputSleep").hide();
-    $("#labelSleep").hide();
+    $("#inputWeekdayWake").hide();
+    $("#labelWeekdayWake").hide();
+    $("#inputWeekdaySleep").hide();
+    $("#labelWeekdaySleep").hide();
+    $("#inputWeekendWake").hide();
+    $("#labelWeekendWake").hide();
+    $("#inputWeekendSleep").hide();
+    $("#labelWeekendSleep").hide();
     $("#btnTimerDisable").hide();
     $("#btnTimerEnable").show();
   });
 
   $("#btnTimerEnable").click(function(){
     $.post("/scheduler",{ scheduler: "True" });
-    $("#inputWake").show();
-    $("#labelWake").show();
-    $("#inputSleep").show();
-    $("#labelSleep").show();
+    $("#inputWeekdayWake").show();
+    $("#labelWeekdayWake").show();
+    $("#inputWeekdaySleep").show();
+    $("#labelWeekdaySleep").show();
+    $("#inputWeekendWake").show();
+    $("#labelWeekendWake").show();
+    $("#inputWeekendSleep").show();
+    $("#labelWeekendSleep").show();
     $("#btnTimerDisable").show();
     $("#btnTimerEnable").hide();
   });
@@ -114,14 +150,18 @@ setInterval(function() {
       timeout: 500,
       success: function ( resp ) {
         if (resp.sched_enabled == true) {
-         $("#inputWake").show();
-         $("#inputSleep").show();
+         $("#inputWeekdayWake").show();
+         $("#inputWeekdaySleep").show();
+         $("#inputWeekendWake").show();
+         $("#inputWeekendSleep").show();
          $("#btnTimerSet").show();
          $("#btnTimerDisable").show();
          $("#btnTimerEnable").hide();
         } else {
-         $("#inputWake").hide();
-         $("#inputSleep").hide();
+         $("#inputWeekdayWake").hide();
+         $("#inputWeekdaySleep").hide();
+         $("#inputWeekendWake").hide();
+         $("#inputWeekendSleep").hide();
          $("#btnTimerSet").hide();
          $("#btnTimerDisable").hide();
          $("#btnTimerEnable").show();

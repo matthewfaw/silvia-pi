@@ -24,8 +24,10 @@ if __name__ == '__main__':
     pidstate = manager.dict()
     pidstate['is_awake'] = True
     pidstate['sched_enabled'] = conf.sched_enabled
-    pidstate['sleep_time'] = conf.sleep_time
-    pidstate['wake_time'] = conf.wake_time
+    pidstate['weekday_sleep_time'] = conf.weekday_sleep_time
+    pidstate['weekday_wake_time'] = conf.weekday_wake_time
+    pidstate['weekend_sleep_time'] = conf.weekend_sleep_time
+    pidstate['weekend_wake_time'] = conf.weekend_wake_time
     pidstate['i'] = 0
     pidstate['settemp'] = conf.set_temp
     pidstate['avgpid'] = 0.
