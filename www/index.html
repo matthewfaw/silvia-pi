@@ -45,7 +45,7 @@
               <div class="col-lg-10">
                   <div class="row">
                       <div class="col-lg-6">
-                          <form class="form-inline" onsubmit="return false">
+                          <form>
                               <div class="form-group">
                                   <label id="labelWeekdayWake" for="inputWeekdayWake">Weekday Wakeup: </label>
                                   <input type="time" class="form-control" id="inputWeekdayWake">
@@ -53,7 +53,7 @@
                           </form>
                       </div>
                       <div class="col-lg-6">
-                          <form class="form-inline" onsubmit="return false">
+                          <form>
                               <div class="form-group">
                                   <label id="labelWeekdaySleep" for="inputWeekdaySleep">Weekday Sleep: </label>
                                   <input type="time" class="form-control" id="inputWeekdaySleep">
@@ -63,7 +63,7 @@
                   </div>
                   <div class="row">
                       <div class="col-lg-6">
-                          <form class="form-inline" onsubmit="return false">
+                          <form>
                               <div class="form-group">
                                   <label id="labelWeekendWake" for="inputWeekendWake">Weekend Wakeup: </label>
                                   <input type="time" class="form-control" id="inputWeekendWake">
@@ -71,7 +71,7 @@
                           </form>
                       </div>
                       <div class="col-lg-6">
-                          <form class="form-inline" onsubmit="return false">
+                          <form>
                               <div class="form-group">
                                   <label id="labelWeekendSleep" for="inputWeekendSleep">Weekend Sleep: </label>
                                   <input type="time" class="form-control" id="inputWeekendSleep">
@@ -83,36 +83,32 @@
           </div>
         </div>
         <div class="col-lg-2">
-            <form class="form-inline" onsubmit="return false">
-                <div class="form-group">
-                    <button id="btnTimerDisable" class="btn btn-danger" style="display:none">Disable Timer</button>
-                    <button id="btnTimerEnable" class="btn btn-primary" style="display:none">Enable Timer</button>
-                </div>
-            </form>
+            <button type="button" id="btnTimerDisable" class="btn btn-danger">Disable Timer</button>
+            <button id="btnTimerEnable" class="btn btn-primary" style="display:none">Enable Timer</button>
         </div>
       </div>
       <div class="row mb-4">
-          <form class="form-inline" onsubmit="return false">
-              <div class="form-group">
-                  <button id="toggleadv" class="btn btn-info">Advanced Stats</button>
-              </div>
-          </form>
+          <div class="container">
+              <button id="toggleadv" class="btn btn-info">Advanced Stats</button>
+          </div>
       </div>
     </div>
-    <div class="center-block adv">
+    <div class="container adv">
       <hr>
-      <div class="row">
-        <div class="col-xs-12">
-          <canvas id="pidchart"></canvas>
+      <div id="fullrow" class="row">
+        <div class="col-lg-12">
+          <canvas id="pidchart" />
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-2"><h5>PID Stats:</h5></div>
-        <div class="col-xs-2"><h5>P Term: <span id="pterm" style="color:#ff0000;">00.00</span></h5></div>
-        <div class="col-xs-2"><h5>I Term: <span id="iterm" style="color:#00ff00;">00.00</span></h5></div>
-        <div class="col-xs-2"><h5>D Term: <span id="dterm" style="color:#0000ff;">00.00</span></h5></div>
-        <div class="col-xs-2"><h5>Pid Val: <span id="pidval" style="color:#ffff00;">00.00</span></h5></div>
-        <div class="col-xs-2"><h5>Pid Avg: <span id="avgpid" style="color:#ff00ff;">00.00</span></h5></div>
+        <div class="col-lg-2"><h5>PID Stats:</h5></div>
+      </div>
+      <div class="row">
+        <div class="col-lg-2"><h5>P Term: <span id="pterm" style="color:#ff0000;">00.00</span></h5></div>
+        <div class="col-lg-2"><h5>I Term: <span id="iterm" style="color:#00ff00;">00.00</span></h5></div>
+        <div class="col-lg-2"><h5>D Term: <span id="dterm" style="color:#0000ff;">00.00</span></h5></div>
+        <div class="col-lg-2"><h5>Pid Val: <span id="pidval" style="color:#ffff00;">00.00</span></h5></div>
+        <div class="col-lg-2"><h5>Pid Avg: <span id="avgpid" style="color:#ff00ff;">00.00</span></h5></div>
       </div>
     </div>
   </div>
