@@ -7,8 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="icon" sizes="240x240" href="./icon.png">
     <title>Silvia Pi</title>
-    <link rel="stylesheet" href="./css/bootstrap.css">
-    <link rel="stylesheet" href="./css/bootstrap-theme.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script type="text/javascript" src="./js/smoothie.js"></script>
     <script type="text/javascript" src="./js/jquery.js"></script>
     <script type="text/javascript" src="./js/bootstrap.js"></script>
@@ -17,20 +16,20 @@
   <body>
   <div class="container">
     <h1><img src="icon.png" height=35 width=35 style="vertical-align:top" />Silvia Pi <small>Dashboard</small></h1>
-    <div class="center-block">
+    <div class="container">
       <div id="fullrow" class="row">
-        <div class="col-xs-12">
+        <div class="container">
           <canvas id="chart"></canvas>
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-12">
+        <div class="col-lg-12">
           <h5 class="text-right">Current Temp: <span id="curtemp">00.00</span> °F</h5>
         </div>
       </div>
       <hr>
-      <div class="row">
-        <div class="col-xs-3">
+      <div class="row mb-4">
+        <div class="col-lg-3">
           <form class="form-inline" onsubmit="return false">
             <div class="form-group">
               <label for="inputSetTemp">Brew Temp: </label>
@@ -40,48 +39,64 @@
               </div>
             </div>
          </form>
-       </div>
-        <div class="col-xs-7">
+        </div>
+        <div class="col-lg-7">
           <div class="row">
-              <div class="col-xs-10">
+              <div class="col-lg-10">
                   <div class="row">
-                      <form class="form-inline" onsubmit="return false">
-                          <div class="form-group">
-                              <label id="labelWeekdayWake" for="inputWeekdayWake">Weekday Wakeup: </label>
-                              <input type="time" class="form-control" id="inputWeekdayWake" style="width:120px">
-                              <label id="labelWeekdaySleep" for="inputWeekdaySleep">Weekday Sleep: </label>
-                              <input type="time" class="form-control" id="inputWeekdaySleep" style="width:120px">
-                           </div>
-                      </form>
-                  </div>
-                  <div class="row">
-                      <form class="form-inline" onsubmit="return false">
-                          <div class="form-group">
-                              <label id="labelWeekendWake" for="inputWeekendWake">Weekend Wakeup: </label>
-                              <input type="time" class="form-control" id="inputWeekendWake" style="width:120px">
-                              <label id="labelWeekendSleep" for="inputWeekendSleep">Weekend Sleep: </label>
-                              <input type="time" class="form-control" id="inputWeekendSleep" style="width:120px">
-                           </div>
-                      </form>
-                  </div>
-              </div>
-              <div class="col-xs-2">
-                  <form class="form-inline" onsubmit="return false">
-                      <div class="form-group">
-                          <button id="btnTimerDisable" class="btn btn-danger" style="display:none">Disable Timer</button>
-                          <button id="btnTimerEnable" class="btn btn-primary" style="display:none">Enable Timer</button>
+                      <div class="col-lg-6">
+                          <form class="form-inline" onsubmit="return false">
+                              <div class="form-group">
+                                  <label id="labelWeekdayWake" for="inputWeekdayWake">Weekday Wakeup: </label>
+                                  <input type="time" class="form-control" id="inputWeekdayWake">
+                               </div>
+                          </form>
                       </div>
-                  </form>
+                      <div class="col-lg-6">
+                          <form class="form-inline" onsubmit="return false">
+                              <div class="form-group">
+                                  <label id="labelWeekdaySleep" for="inputWeekdaySleep">Weekday Sleep: </label>
+                                  <input type="time" class="form-control" id="inputWeekdaySleep">
+                               </div>
+                          </form>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-lg-6">
+                          <form class="form-inline" onsubmit="return false">
+                              <div class="form-group">
+                                  <label id="labelWeekendWake" for="inputWeekendWake">Weekend Wakeup: </label>
+                                  <input type="time" class="form-control" id="inputWeekendWake">
+                               </div>
+                          </form>
+                      </div>
+                      <div class="col-lg-6">
+                          <form class="form-inline" onsubmit="return false">
+                              <div class="form-group">
+                                  <label id="labelWeekendSleep" for="inputWeekendSleep">Weekend Sleep: </label>
+                                  <input type="time" class="form-control" id="inputWeekendSleep">
+                               </div>
+                          </form>
+                      </div>
+                  </div>
               </div>
           </div>
         </div>
-        <div class="col-xs-2">
-          <form class="form-inline" onsubmit="return false">
-            <div class="form-group">
-              <button id="toggleadv" class="btn btn-info">Advanced Stats</button>
-            </div>
-          </form>
+        <div class="col-lg-2">
+            <form class="form-inline" onsubmit="return false">
+                <div class="form-group">
+                    <button id="btnTimerDisable" class="btn btn-danger" style="display:none">Disable Timer</button>
+                    <button id="btnTimerEnable" class="btn btn-primary" style="display:none">Enable Timer</button>
+                </div>
+            </form>
         </div>
+      </div>
+      <div class="row mb-4">
+          <form class="form-inline" onsubmit="return false">
+              <div class="form-group">
+                  <button id="toggleadv" class="btn btn-info">Advanced Stats</button>
+              </div>
+          </form>
       </div>
     </div>
     <div class="center-block adv">
