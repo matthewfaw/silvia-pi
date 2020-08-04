@@ -3,5 +3,6 @@
 *.pyc
 PID.*
 *.debug.js
+.DS_Store
 
 ivPID/
