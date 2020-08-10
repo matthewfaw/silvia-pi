@@ -18,30 +18,47 @@ A Raspberry Pi modification to the Rancilio Silvia Espresso Machine implementing
 #### Hardware
 * Raspberry Pi 2
   * $35 - http://www.amazon.com/Raspberry-Pi-Model-Project-Board/dp/B00T2U7R7I
-  * $5 - Raspberry Pi Zero should work too
 * Wi-Fi Adapter that works with Raspbian
   * $10 - http://www.amazon.com/Edimax-EW-7811Un-150Mbps-Raspberry-Supports/dp/B003MTTJOY or
-  * $10 - http://www.amazon.com/Tenda-150Mbps-Wireless-Adapter-W311MI/dp/B006GCYAOI
 * Power Adapter
   * Any Micro USB 5v / 2A supply will do, the longer the cable the better
-  * $9 - http://www.amazon.com/CanaKit-Raspberry-Supply-Adapter-Charger/dp/B00GF9T3I0
+  * I used an Apple USB block, and a 3ft long micro-usb cable
 * Micro SD Card
   * 4GB minimum, 8GB Class 10 recommended
   * $7 - http://www.amazon.com/Samsung-Class-Adapter-MB-MP16DA-AM/dp/B00IVPU7KE
 * Solid State Relay - For switching on and off the heating element
-  * $10 - https://www.sparkfun.com/products/13015
+  * $10 - https://www.amazon.com/gp/product/B00HV974KC/ref=ppx_yo_dt_b_asin_title_o01_s01?ie=UTF8&psc=1
 * Thermocouple Amplifier - For interfacing between the Raspberry Pi and Thermocouple temperature probe
-  * $15 - https://www.sparkfun.com/products/13266
+  * $15 - https://www.amazon.com/gp/product/B01MR5EG6L/ref=ppx_yo_dt_b_asin_title_o01_s02?ie=UTF8&psc=1
 * Type K Thermocouple - For accurate temperature measurement
-  * $15 - http://www.auberins.com/index.php?main_page=product_info&cPath=20_3&products_id=307
+  * $15 - https://www.amazon.com/gp/product/B00N2QTHLM/ref=ppx_yo_dt_b_asin_title_o01_s04?ie=UTF8&psc=1
 * Ribbon Cable - For connecting everything together
-  * $7 - http://www.amazon.com/Veewon-Flexible-Multicolored-Female-Breadboard/dp/B00N7XX4XM
-    * Female to Female if using the Raspberry Pi 2
-  * $5 - http://www.amazon.com/uxcell-Width-Colorful-Flexible-Ribbon/dp/B00BWFY6JI
-    * Bare wire if using the Raspberry Pi Zero
+  * $5 - https://www.amazon.com/gp/product/B07GD2BWPY/ref=ppx_yo_dt_b_asin_title_o01_s00?ie=UTF8&th=1
 * 14 gauge wire - For connecting the A/C side of the relay to the circuit
-  * $5 - Hardware Store / Scrap
-    * Don't skimp here.  Remember this wire will be in close proximit to a ~240*F boiler
+  * $5 - https://www.amazon.com/gp/product/B017TFR6SM/ref=ppx_yo_dt_b_asin_title_o01_s06?ie=UTF8&psc=1
+    * Don't skimp here.  Remember this wire will be in close proximity to a ~240*F boiler
+* Gardner Bender 16-14 AWG 4-6 Stud Spade Terminal, Vinyl Blue (10-Pack)
+  * https://www.homedepot.com/p/Gardner-Bender-16-14-AWG-4-6-Stud-Spade-Terminal-Vinyl-Blue-10-Pack-15-113/205846650
+    * To connect wire from SSR to b1 and b2
+* Mounting screws/nuts
+  * M4 for the SSR
+    * https://www.homedepot.com/p/Everbilt-M4-0-7-x-14-mm-Phillips-Flat-Head-Stainless-Steel-Machine-Screw-2-Pack-843748/204849533
+  * M2.5 for the Raspberry pi
+    * https://www.homedepot.com/p/Everbilt-M2-5-0-45-x-25-mm-Phillips-Pan-Head-Stainless-Steel-Machine-Screw-2-Pack-842638/204845996
+* Drill + drill bits
+  * To make holes for mounting raspberry pi + SSR, and to run power to pi
+* Wire stripper + crimper
+  * https://www.homedepot.com/p/Klein-Tools-Klein-Kurve-Multi-Tool-Wire-Stripper-Crimper-1019SEN/305303655
+* Heat shrink + solder + soldering iron to connect everything
+  * Heat shrink
+    * https://www.homedepot.com/p/Gardner-Bender-8-Piece-Heat-Shrink-Tubing-Assortment-HST-AST/100166440
+  * Solder
+    * https://www.amazon.com/gp/product/B072WP4H99/ref=ppx_yo_dt_b_asin_title_o01_s03?ie=UTF8&psc=1
+  * Soldering iron
+    * https://www.amazon.com/gp/product/B000AS28UC/ref=ppx_yo_dt_b_asin_title_o01_s00?ie=UTF8&psc=1
+  * Soldering iron tips
+    * https://www.amazon.com/gp/product/B07MH9P37S/ref=ppx_yo_dt_b_asin_title_o07_s00?ie=UTF8&psc=1
+
 
 #### Hardware Installation
 [Installation Instructions / Pictures](http://imgur.com/a/3WLVt)
@@ -56,23 +73,14 @@ High-level circuit diagram:
   * Full - https://downloads.raspberrypi.org/raspbian_latest
   * Lite (for smaller SD Cards) - https://downloads.raspberrypi.org/raspbian_lite_latest
 
-Install Raspbian and configure Wi-Fi and timezone.
+Install Raspbian and configure Wi-Fi, timezone, and ssh access.
 
 #### silvia-pi Software Installation Instructions
 Execute on the pi bash shell:
 ````
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y install rpi-update git build-essential python-dev python-smbus python-pip
-sudo rpi-update
-sudo bash -c 'echo "dtparam=spi=on" >> /boot/config.txt'
-sudo reboot
-````
-
-After the reboot:
-````
 sudo git clone https://github.com/brycesub/silvia-pi.git /root/silvia-pi
 sudo /root/silvia-pi/setup.sh
+sudo reboot
 ````
 This last step will download the necessariy python libraries and install the silvia-pi software in /root/silvia-pi
 
