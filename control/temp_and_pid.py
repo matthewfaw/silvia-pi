@@ -44,12 +44,17 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
         try:
             while True: # Loops 10x/second
                 # Get the temp
-                tempc = sensor.temperature
-                if isnan(tempc):
+                try:
+                    tempc = sensor.temperature
+                except RuntimeError as err:
                     nanct += 1
-                    if nanct > 100000:
-                        sys.exit
-                    continue
+                    print("Encountered the following error while reading the temperature for the {}th time:\n{}".format(nanct, err))
+                    if nanct > conf.temp_reading_errors:
+                        print("Exceeded temp reading error threshold... Exiting")
+                        sys.exit("Too many temp reading errors!")
+                    else:
+                        sleep(conf.sample_time)
+                        continue
                 else:
                     nanct = 0
 
@@ -87,6 +92,7 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
                 avgpid = sum(pidhist)/len(pidhist)
 
                 state['i'] = i
+                state['nanct'] = nanct
                 state['tempf'] = round(tempf,2)
                 state['avgtemp'] = round(avgtemp,2)
                 state['pidval'] = round(pidout,2)

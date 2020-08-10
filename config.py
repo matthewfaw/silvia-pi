@@ -8,17 +8,21 @@ spi_dev = 0
 he_pin = 26
 
 # Default goal temperature
-set_temp = 221.
+#set_temp = 221.
+set_temp = 210.
 
 # Default sleep/wake times
 sched_enabled = True
-weekday_wake_time = '07:45'
+weekday_wake_time = '06:30'
 weekday_sleep_time = '09:45'
 weekend_wake_time = '10:00'
 weekend_sleep_time = '12:30'
 
 # Main loop sample rate in seconds
 sample_time = 0.5
+
+# Number of times to allow RuntimeError("short circuit to ground")
+temp_reading_errors = 100
 
 # PID Proportional, Integral, and Derivative values
 Pc = 3.4
