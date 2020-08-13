@@ -31,7 +31,9 @@ if __name__ == '__main__':
     pidstate['i'] = 0
     pidstate['settemp'] = conf.set_temp
     pidstate['avgpid'] = 0.
-    pidstate['nanct'] = 0
+    pidstate['curr_nanct'] = 0
+    pidstate['total_nanct'] = 0
+    pidstate['last_nan_time'] = -1
 
     if args.with_scheduler:
         print("Starting Scheduler thread...")

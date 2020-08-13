@@ -6,6 +6,7 @@ import PID as PID
 import config as conf
 from control.dummy import DummyPID, DummySensor, DummyDigitalIO, DummySPI
 from collections import deque
+from datetime import datetime as dt
 
 
 def _c_to_f(c):
@@ -27,7 +28,9 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
     pid.SetPoint = state['settemp']
     pid.setSampleTime(conf.sample_time)
 
-    nanct=0
+    curr_nanct=0
+    total_nanct=0
+    last_nan_time=-1
     i=0
     j=0
     pidhist = deque([0.]*10)
@@ -47,16 +50,18 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
                 try:
                     tempc = sensor.temperature
                 except RuntimeError as err:
-                    nanct += 1
-                    print("Encountered the following error while reading the temperature for the {}th time:\n{}".format(nanct, err))
-                    if nanct > conf.temp_reading_errors:
+                    curr_nanct += 1
+                    total_nanct += 1
+                    last_nan_time = dt.now()
+                    print("Encountered the following error while reading the temperature for the {}th time in a row:\n{}".format(curr_nanct, err))
+                    if curr_nanct > conf.temp_reading_errors:
                         print("Exceeded temp reading error threshold... Exiting")
                         sys.exit("Too many temp reading errors!")
                     else:
                         sleep(conf.sample_time)
                         continue
                 else:
-                    nanct = 0
+                    curr_nanct = 0
 
                 tempf = _c_to_f(tempc)
                 temphist.popleft()
@@ -92,7 +97,9 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
                 avgpid = sum(pidhist)/len(pidhist)
 
                 state['i'] = i
-                state['nanct'] = nanct
+                state['curr_nanct'] = curr_nanct
+                state['total_nanct'] = total_nanct
+                state['last_nan_time'] = last_nan_time
                 state['tempf'] = round(tempf,2)
                 state['avgtemp'] = round(avgtemp,2)
                 state['pidval'] = round(pidout,2)
