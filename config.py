@@ -41,3 +41,7 @@ Dw = 40.0
 
 #Web/REST Server Options
 port = 8080
+
+#Slack channel to monitor
+slack_channel="general"
+slack_sample_time=1

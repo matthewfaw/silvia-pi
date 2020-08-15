@@ -4,3 +4,4 @@ RPi.GPIO
 schedule
 Adafruit-Blinka
 adafruit-circuitpython-max31855
+slackclient

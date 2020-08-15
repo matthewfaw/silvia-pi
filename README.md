@@ -76,13 +76,15 @@ High-level circuit diagram:
 Install Raspbian and configure Wi-Fi, timezone, and ssh access.
 
 #### silvia-pi Software Installation Instructions
+First, you'll need to set up a slack channel for the slack integration. Create
+a bot named `ms-silvia`, and locate the API access token.
+
 Execute on the pi bash shell:
 ````
-sudo git clone https://github.com/brycesub/silvia-pi.git /root/silvia-pi
-sudo /root/silvia-pi/setup.sh
-sudo reboot
+sudo git clone https://github.com/brycesub/silvia-pi.git /your/desired/dir/silvia-pi
+sudo /your/desired/dir/silvia-pi/setup.sh
 ````
-This last step will download the necessariy python libraries and install the silvia-pi software in /root/silvia-pi
+This last step will download the necessariy python libraries and install the silvia-pi software in /your/desired/dir/silvia-pi
 
 It also creates an entry in /etc/rc.local to start the software on every boot.
 

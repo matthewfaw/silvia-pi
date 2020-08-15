@@ -2,13 +2,14 @@ from urllib.request import urlopen
 import config as conf
 from time import sleep
 
-def _is_alive(args, p, h, r, s):
+def _is_alive(args, p, h, r, s, slack):
     return (not args.with_scheduler or s.is_alive())\
             and (not (args.with_pid or args.with_temp) or p.is_alive())\
             and (not args.with_he or h.is_alive())\
-            and (not args.with_server or r.is_alive())
+            and (not args.with_server or r.is_alive()\
+            and (not args.with_slack or slack.is_alive())
 
-def watch(args, p, h, r, s, pidstate):
+def watch(args, p, h, r, s, slack, pidstate):
     print("Starting Watchdog...")
     piderr = 0
     weberr = 0
@@ -18,7 +19,7 @@ def watch(args, p, h, r, s, pidstate):
     lasti = pidstate['i']
     sleep(1)
 
-    while _is_alive(args, p, h, r, s):
+    while _is_alive(args, p, h, r, s, slack):
         curi = pidstate['i']
         if curi == lasti:
             piderr = piderr + 1

@@ -1,4 +1,5 @@
 from multiprocessing import Process, Manager
+import time
 from time import sleep
 import config as conf
 import argparse
@@ -8,15 +9,17 @@ from control.schedule import scheduler
 from control.temp_and_pid import pid_loop
 from control.heat_exchange import he_control_loop
 from control.server import rest_server
+from control.slack import slack_interact
 from control.watchdog import watch
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Start the server")
     parser.add_argument("--with-scheduler", type=bool, default=True, required=False, help="Indicates whether or not scheduler should be started")
-    parser.add_argument("--with-temp", type=bool, default=False, required=False, help="Indicates whether or not temperature reading will be taken from the MAX31855")
-    parser.add_argument("--with-pid", type=bool, default=False, required=False, help="Indicates whether or not PID controller should be started")
-    parser.add_argument("--with-he", type=bool, default=False, required=False, help="Indicates whether or not HE Controller should be started")
+    parser.add_argument("--with-temp", type=bool, default=True, required=False, help="Indicates whether or not temperature reading will be taken from the MAX31855")
+    parser.add_argument("--with-pid", type=bool, default=True, required=False, help="Indicates whether or not PID controller should be started")
+    parser.add_argument("--with-he", type=bool, default=True, required=False, help="Indicates whether or not HE Controller should be started")
     parser.add_argument("--with-server", type=bool, default=True, required=False, help="Indicates whether or not server should be started")
+    parser.add_argument("--with-slack", type=bool, default=True, required=False, help="Indicates whether or not slack integration should be started")
     args = parser.parse_args()
     print("CLI Args:",args)
 
@@ -34,6 +37,7 @@ if __name__ == '__main__':
     pidstate['curr_nanct'] = 0
     pidstate['total_nanct'] = 0
     pidstate['last_nan_time'] = -1
+    pidstate['slack_last_processed_ts'] = time.time()
 
     if args.with_scheduler:
         print("Starting Scheduler thread...")
@@ -68,4 +72,12 @@ if __name__ == '__main__':
     else:
         r = None
 
-    watch(args, p, h, r, s, pidstate)
+    if args.with_slack:
+        print("Starting Slack interaction thread...")
+        slack = Process(target=slack_interact,args=(1, pidstate))
+        slack.daemon = True
+        slack.start()
+    else:
+        slack = None
+
+    watch(args, p, h, r, s, slack, pidstate)
