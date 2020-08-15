@@ -16,15 +16,16 @@ def slack_interact(dummy,state):
                 while True:
                     messages_to_process = []
                     last_processed_ts = state['slack_last_processed_ts']
-                    messages_res_iterator = client.conversations_history(channel=channel_id)
+                    messages_res_iterator = slack_web_client.conversations_history(channel=channel_id)
                     for messages_res in messages_res_iterator:
-                        messages_to_process.extend([{k: r[k] for k in ['ts','user','text']} for r in res['messages'] if r['ts'] > last_processed_ts])
-                    messages_to_process = sorted(messages_to_process, key: lambda k: k['ts'])
+                        messages_to_process.extend([{k: r[k] for k in ['ts','user','text']} for r in messages_res['messages'] if r['ts'] > last_processed_ts])
+                    messages_to_process = sorted(messages_to_process, key=lambda k: k['ts'])
 
                     for message in messages_to_process:
-                        print("Processing message: {}".format(message))
-                        response = client.chat_postMessage(channel="#{}".format(conf.slack_channel), text="Derp")
-                        state['slack_last_processed_ts'] = message['ts']
+                        print("Processing message: {}".format(message), file=fslack)
+                        response = slack_web_client.chat_postMessage(channel="#{}".format(conf.slack_channel), text="Derp")
+                        print("Setting the last processed time to {}".format(response['ts']), file=fslack)
+                        state['slack_last_processed_ts'] = response['ts']
                     sleep(conf.slack_sample_time)
         except:
-            print("Encountered an error... Restarting Slack connection.", file=fslack)
+            print("Error in Slack messaging... Restarting Slack connection.")

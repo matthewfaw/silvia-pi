@@ -6,7 +6,7 @@ def _is_alive(args, p, h, r, s, slack):
     return (not args.with_scheduler or s.is_alive())\
             and (not (args.with_pid or args.with_temp) or p.is_alive())\
             and (not args.with_he or h.is_alive())\
-            and (not args.with_server or r.is_alive()\
+            and (not args.with_server or r.is_alive())\
             and (not args.with_slack or slack.is_alive())
 
 def watch(args, p, h, r, s, slack, pidstate):

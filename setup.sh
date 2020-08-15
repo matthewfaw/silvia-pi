@@ -48,7 +48,7 @@ pip3 install --upgrade -r $BASEDIR/requirements.txt
 
 if ! grep silvia-pi.py /etc/rc.local; then
   echo "Adding entry to /etc/rc.local"
-  sed -i.bak 's|^exit 0$|'"${BASEDIR}"'/silvia-pi.py > '"${BASEDIR}"'/silvia-pi.log 2>\&1 \&\n\nexit 0|g' /etc/rc.local
+  sed -i.bak 's|^exit 0$|python3 '"${BASEDIR}"'/silvia-pi.py > '"${BASEDIR}"'/silvia-pi.log 2>\&1 \&\n\nexit 0|g' /etc/rc.local
   chmod 755 /etc/rc.local
 else
   echo "Skipping /etc/rc.local modification since entry already found"

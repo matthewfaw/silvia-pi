@@ -37,7 +37,7 @@ if __name__ == '__main__':
     pidstate['curr_nanct'] = 0
     pidstate['total_nanct'] = 0
     pidstate['last_nan_time'] = -1
-    pidstate['slack_last_processed_ts'] = time.time()
+    pidstate['slack_last_processed_ts'] = str(time.time())
 
     if args.with_scheduler:
         print("Starting Scheduler thread...")

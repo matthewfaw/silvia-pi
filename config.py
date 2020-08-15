@@ -44,4 +44,4 @@ port = 8080
 
 #Slack channel to monitor
 slack_channel="general"
-slack_sample_time=1
+slack_sample_time=0.5

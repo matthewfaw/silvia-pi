@@ -1,7 +1,7 @@
-bottle
-cheroot
-RPi.GPIO
-schedule
-Adafruit-Blinka
-adafruit-circuitpython-max31855
-slackclient
+bottle==0.12.18
+cheroot==8.4.2
+RPi.GPIO==0.7.0
+schedule==0.6.0
+Adafruit-Blinka==5.2.4
+adafruit-circuitpython-max31855==3.2.3
+slackclient==2.8.0
