@@ -10,14 +10,21 @@ def slack_interact(dummy,state):
             with open('slack.log','a') as fslack:
                 slack_web_client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
 
-                res = slack_web_client.conversations_list()
-                channel_id = [channel['id'] for channel in res['channels'] if channel['name'] == conf.slack_channel][0]
-                print("Monitoring Slack channel {} with channel id {}".format(conf.slack_channel, channel_id), file=fslack)
+                if "channel" in conf.slack_channel_type:
+                    channel_id = conf.slack_channel_name
+                    mode = "name"
+                elif "im" in conf.slack_channel_type:
+                    res = slack_web_client.users_list(types=conf.slack_channel_type)
+                    channel_id = [channel['id'] for channel in res['members'] if channel['name'] == conf.slack_channel_name][0]
+                    mode = "user"
+                res = slack_web_client.users_conversations(types=conf.slack_channel_type)
+                conversation_id = [conv['id'] for conv in res['channels'] if conv[mode] == channel_id][0]
+                print("Monitoring Slack {} {} with conversation id {}".format(conf.slack_channel_type, conf.slack_channel_name, channel_id), file=fslack)
 
                 while True:
                     messages_to_process = []
                     last_processed_ts = state['slack_last_processed_ts']
-                    messages_res_iterator = slack_web_client.conversations_history(channel=channel_id)
+                    messages_res_iterator = slack_web_client.conversations_history(channel=conversation_id)
                     for messages_res in messages_res_iterator:
                         messages_to_process.extend([{k: r[k] for k in ['ts','user','text']} for r in messages_res['messages'] if r['ts'] > last_processed_ts])
                     messages_to_process = sorted(messages_to_process, key=lambda k: k['ts'])
@@ -59,12 +66,12 @@ def slack_interact(dummy,state):
                             answer = "All stats: {}".format(allstats)
                         elif "reboot" in message['text']:
                             answer = "Rebooting..."
-                            response = slack_web_client.chat_postMessage(channel="#{}".format(conf.slack_channel), text=answer)
+                            response = slack_web_client.chat_postMessage(channel="{}".format(conversation_id), text=answer)
                             dispatch(op="restart", state=state)
                             continue
                         elif "shutdown" in message['text']:
                             answer = "Shutting down..."
-                            response = slack_web_client.chat_postMessage(channel="#{}".format(conf.slack_channel), text=answer)
+                            response = slack_web_client.chat_postMessage(channel="{}".format(conversation_id), text=answer)
                             dispatch(op="restart", state=state)
                             continue
                         elif "hc" in message['text']:
@@ -73,9 +80,10 @@ def slack_interact(dummy,state):
                         else:
                             options = dispatch(op="list", state=state)
                             answer = "The possible commands are: {}".format(options)
-                        response = slack_web_client.chat_postMessage(channel="#{}".format(conf.slack_channel), text=answer)
+                        response = slack_web_client.chat_postMessage(channel="{}".format(conversation_id), text=answer)
                         print("Setting the last processed time to {}".format(response['ts']), file=fslack)
                         state['slack_last_processed_ts'] = response['ts']
                     sleep(conf.slack_sample_time)
         except:
             print("Failue in slack client... Retrying.")
+            sleep(conf.slack_sample_time)

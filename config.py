@@ -43,5 +43,8 @@ Dw = 40.0
 port = 8080
 
 #Slack channel to monitor
-slack_channel="general"
-slack_sample_time=0.5
+#slack_channel_type="public_channel"
+slack_channel_type="im"
+#slack_channel_name="general"
+slack_channel_name="matthewfaw"
+slack_sample_time=5
