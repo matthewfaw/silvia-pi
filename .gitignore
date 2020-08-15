@@ -7,3 +7,5 @@ PID.*
 
 ivPID/
 .idea/
+
+**__init__.py

@@ -1,7 +1,6 @@
 from bottle import route, run, get, post, request, static_file, abort
-from subprocess import call
-from datetime import datetime
 import config as conf
+from control.dispatcher import dispatch
 
 def rest_server(dummy, state, basedir):
 
@@ -15,37 +14,29 @@ def rest_server(dummy, state, basedir):
 
     @route('/curtemp')
     def curtemp():
-        return str(state['avgtemp'])
+        return dispatch(op="curr_temp", state=state)
 
     @get('/settemp')
     def settemp():
-        return str(state['settemp'])
+        return dispatch(op="get_settemp", state=state)
 
     @post('/settemp')
     def post_settemp():
         try:
-            settemp = float(request.forms.get('settemp'))
-            if settemp >= 200 and settemp <= 260 :
-                state['settemp'] = settemp
-                return str(settemp)
-            else:
-                abort(400,'Set temp out of range 200-260.')
+            return dispatch(op="settemp", state=state, body=float(request.forms.get('settemp')))
         except:
             abort(400,'Invalid number for set temp.')
 
     @get('/is_awake')
     def get_is_awake():
-        return str(state['is_awake'])
+        return dispatch(op="is_awake", state=state)
 
     @post('/scheduler')
     def set_sched():
-        sched = request.forms.get('scheduler')
-        if sched == "True":
-            state['sched_enabled'] = True
-        elif sched == "False":
-            state['sched_enabled'] = False
-            state['is_awake'] = True
-        else:
+        try:
+            sched = request.forms.get('scheduler')
+            dispatch(op="schedule", state=state, body=sched)
+        except:
             abort(400,'Invalid scheduler setting. Expecting True or False')
 
     @post('/setwake')
@@ -53,40 +44,34 @@ def rest_server(dummy, state, basedir):
         wake = request.forms.get('wake')
         weekday_or_weekend = "weekday" if request.forms.get('weekday') == "True" else "weekend"
         try:
-            datetime.strptime(wake,'%H:%M')
+            return dispatch(op="set_wake", state=state, body=[wake, weekday_or_weekend])
         except:
             abort(400,'Invalid time format.')
-        state['{}_wake_time'.format(weekday_or_weekend)] = wake
-        return str(wake)
 
     @post('/setsleep')
     def set_sleep():
         sleep = request.forms.get('sleep')
         weekday_or_weekend = "weekday" if request.forms.get('weekday') == "True" else "weekend"
         try:
-            datetime.strptime(sleep,'%H:%M')
+            return dispatch(op="set_sleep", state=state, body=[sleep, weekday_or_weekend])
         except:
             abort(400,'Invalid time format.')
-        state['{}_sleep_time'.format(weekday_or_weekend)] = sleep
-        return str(sleep)
 
     @get('/allstats')
     def allstats():
-        return dict(state)
+        return dispatch(op="all_stats", state=state)
 
     @route('/restart')
     def restart():
-        call(["reboot"])
-        return '';
+        return dispatch(op="restart", state=state)
 
     @route('/shutdown')
     def shutdown():
-        call(["shutdown","-h","now"])
-        return '';
+        return dispatch(op="shutdown", state=state)
 
     @get('/healthcheck')
     def healthcheck():
-        return 'OK'
+        return dispatch(op="hc", state=state)
 
     with open('webserver.log','a') as fweb:
         print("basedir:",basedir,file=fweb)

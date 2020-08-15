@@ -23,10 +23,14 @@ echo "Enable SPI -- this will require system reboot to take effect"
 echo "Note that, after rebooting, you should see device /dev/spidev0.0"
 sed -i.bak "s/#dtparam=spi=on/dtparam=spi=on/g" /boot/config.txt
 
-echo "Setting up Slack API OAuth token"
-read -p "Enter your API key here (press Enter when done): "  -r
-echo    # (optional) move to a new line
-echo "export SLACK_BOT_TOKEN=$REPLY" >> /etc/environment
+if ! grep SLACK_BOT_TOKEN /etc/environment; then
+  echo "Setting up Slack API OAuth token"
+  read -p "Enter your API key here (press Enter when done): "  -r
+  echo    # (optional) move to a new line
+  echo "export SLACK_BOT_TOKEN=$REPLY" >> /etc/environment
+else
+  echo "Slack OAuth API token already enabled... Skipping this step."
+fi
 
 MYIP=$(hostname -I | cut -f1 -d ' ')
 echo "Print+log the IP: ${MYIP}"
@@ -48,7 +52,7 @@ pip3 install --upgrade -r $BASEDIR/requirements.txt
 
 if ! grep silvia-pi.py /etc/rc.local; then
   echo "Adding entry to /etc/rc.local"
-  sed -i.bak 's|^exit 0$|python3 '"${BASEDIR}"'/silvia-pi.py > '"${BASEDIR}"'/silvia-pi.log 2>\&1 \&\n\nexit 0|g' /etc/rc.local
+  sed -i.bak 's|^exit 0$|. /etc/environment\n\npython3 '"${BASEDIR}"'/silvia-pi.py > '"${BASEDIR}"'/silvia-pi.log 2>\&1 \&\n\nexit 0|g' /etc/rc.local
   chmod 755 /etc/rc.local
 else
   echo "Skipping /etc/rc.local modification since entry already found"
