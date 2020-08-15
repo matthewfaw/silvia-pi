@@ -13,10 +13,13 @@ set_temp = 210.
 
 # Default sleep/wake times
 sched_enabled = True
+sched_disabled_op = "wakeup"
+#sched_disabled_op = "gotosleep"
 weekday_wake_time = '06:30'
 weekday_sleep_time = '09:45'
 weekend_wake_time = '10:00'
 weekend_sleep_time = '12:30'
+schedule_sample_time = 1
 
 # Main loop sample rate in seconds
 sample_time = 0.5

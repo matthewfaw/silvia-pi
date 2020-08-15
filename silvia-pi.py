@@ -27,6 +27,7 @@ if __name__ == '__main__':
     pidstate = manager.dict()
     pidstate['is_awake'] = True
     pidstate['sched_enabled'] = conf.sched_enabled
+    pidstate['sched_disabled_op'] = conf.sched_disabled_op
     pidstate['weekday_sleep_time'] = conf.weekday_sleep_time
     pidstate['weekday_wake_time'] = conf.weekday_wake_time
     pidstate['weekend_sleep_time'] = conf.weekend_sleep_time
@@ -37,7 +38,7 @@ if __name__ == '__main__':
     pidstate['curr_nanct'] = 0
     pidstate['total_nanct'] = 0
     pidstate['last_nan_time'] = -1
-    pidstate['slack_last_processed_ts'] = str(time.time())
+    pidstate['slack_last_processed_ts'] = "{:.6f}".format(time.time())
 
     if args.with_scheduler:
         print("Starting Scheduler thread...")

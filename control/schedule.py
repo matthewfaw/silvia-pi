@@ -2,6 +2,7 @@ import time
 import sys
 import schedule
 from datetime import datetime
+import config as conf
 
 def _wakeup(dummy,state):
     state['is_awake'] = True
@@ -17,16 +18,18 @@ def scheduler(dummy,state):
         last_weekend_wake = 0
         last_weekend_sleep = 0
         last_sched_switch = 0
+        last_sched_disabled_op = 0
 
         while True:
             if last_weekday_wake != state['weekday_wake_time'] or\
                     last_weekday_sleep != state['weekday_sleep_time'] or\
                     last_weekend_wake != state['weekend_wake_time'] or\
                     last_weekend_sleep != state['weekend_sleep_time'] or\
-                    last_sched_switch != state['sched_enabled']:
+                    last_sched_switch != state['sched_enabled'] or\
+                    last_sched_disabled_op != state['sched_disabled_op']:
                 schedule.clear()
 
-                if state['sched_enabled'] == True:
+                if state['sched_enabled']:
                     for weekday in ['monday','tuesday','wednesday','thursday','friday']:
                         eval("schedule.every().{}.at(state['weekday_sleep_time']).do(_gotosleep,1,state)".format(weekday))
                         eval("schedule.every().{}.at(state['weekday_wake_time']).do(_wakeup,1,state)".format(weekday))
@@ -52,14 +55,18 @@ def scheduler(dummy,state):
                         else:
                             _wakeup(1,state)
                 else:
-                    _wakeup(1,state)
+                    if state['sched_disabled_op'] == "wakeup":
+                        _wakeup(1,state)
+                    else:
+                        _gotosleep(1,state)
 
             last_weekday_wake = state['weekday_wake_time']
             last_weekday_sleep = state['weekday_sleep_time']
             last_weekend_wake = state['weekend_wake_time']
             last_weekend_sleep = state['weekend_sleep_time']
             last_sched_switch = state['sched_enabled']
+            last_sched_disabled_op = state['sched_disabled_op']
 
             schedule.run_pending()
 
-            time.sleep(1)
+            time.sleep(conf.schedule_sample_time)
