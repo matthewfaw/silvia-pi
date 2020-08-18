@@ -33,10 +33,10 @@ def dispatch(op, state, body=None):
         return str(state['is_awake'])
     if op == DispatchOptions.SCHEDULE:
         sched = body
-        if sched == "True":
+        if sched.lower() == "true":
             state['sched_enabled'] = True
             return True
-        elif sched == "False":
+        elif sched.lower() == "false":
             state['sched_enabled'] = False
             state['is_awake'] = True
             return False
@@ -44,7 +44,7 @@ def dispatch(op, state, body=None):
             raise Exception('Invalid scheduler setting. Expecting True or False')
     if op == DispatchOptions.SCHED_DISABLED_OP:
         sched_disabled_op = body
-        if sched_disabled_op in ['wakeup', 'gotosleep']:
+        if sched_disabled_op.lower() in ['wakeup', 'gotosleep']:
             state['sched_disabled_op'] = sched_disabled_op
             return sched_disabled_op
         else:
@@ -53,13 +53,13 @@ def dispatch(op, state, body=None):
         wake = body[0]
         weekday_or_weekend = body[1]
         datetime.strptime(wake,'%H:%M')
-        state['{}_wake_time'.format(weekday_or_weekend)] = wake
+        state['{}_wake_time'.format(weekday_or_weekend.lower())] = wake
         return str(wake)
     if op == DispatchOptions.SET_SLEEP:
         sleep = body[0]
         weekday_or_weekend = body[1]
         datetime.strptime(sleep,'%H:%M')
-        state['{}_sleep_time'.format(weekday_or_weekend)] = sleep
+        state['{}_sleep_time'.format(weekday_or_weekend.lower())] = sleep
         return str(sleep)
     if op == DispatchOptions.ALLSTATS:
         return dict(state)
