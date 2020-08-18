@@ -69,7 +69,7 @@ def get_response_for(message, state, client, conversation_id):
         return "{} sleep changed {} -> {}".format(weekday_or_weekend, oldsleep, sleep_req)
     elif re.match(DispatchOptions.ALLSTATS.value, message):
         allstats = dispatch(op=DispatchOptions.ALLSTATS, state=state)
-        return "All stats: {}".format(allstats)
+        return "All stats: ```{}```".format(allstats)
     elif re.match(DispatchOptions.REBOOT.value, message):
         answer = "Rebooting..."
         response = send_message(client=client, conversation_id=conversation_id, message=answer)
@@ -85,7 +85,7 @@ def get_response_for(message, state, client, conversation_id):
         return "Everything is {}".format(ok)
     else:
         options = dispatch(op=DispatchOptions.LIST, state=state)
-        return "The possible commands are: {}".format(options)
+        return "The possible commands are: ```{}```".format(options)
 
 def slack_interact(dummy,state):
     while True:
