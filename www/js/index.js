@@ -166,6 +166,15 @@ setInterval(function() {
          $("#btnTimerDisable").hide();
          $("#btnTimerEnable").show();
         }
+        if (resp.is_awake == true) {
+         $("#targetTimer").show();
+         $("#awakeTime").show();
+         $("#awakeTimer").show();
+        } else {
+         $("#targetTimer").hide();
+         $("#awakeTime").hide();
+         $("#awakeTimer").hide();
+        }
         curtemp.append(new Date().getTime(), resp.tempf);
         settemp.append(new Date().getTime(), resp.settemp);
         settempm.append(new Date().getTime(), resp.settemp-4);
@@ -176,6 +185,9 @@ setInterval(function() {
         pidval.append(new Date().getTime(), resp.pidval);
         avgpid.append(new Date().getTime(), resp.avgpid);
         $("#curtemp").html(resp.tempf.toFixed(2));
+        $("#timesincetarget").html(resp.time_outside_target_temp.split(".")[0]);
+        $("#timesinceawake").html(resp.time_since_awake.split(".")[0]);
+        $("#awaketime").html(String(resp.awake_time).split(".")[0]);
         $("#pterm").html(resp.pterm.toFixed(2));
         $("#iterm").html(resp.iterm.toFixed(2));
         $("#dterm").html(resp.dterm.toFixed(2));

@@ -1,14 +1,19 @@
 import time
 import sys
 import schedule
-from datetime import datetime
+from datetime import datetime as dt
+from datetime import timedelta
 import config as conf
 
 def _wakeup(dummy,state):
     state['is_awake'] = True
+    state['awake_time'] = str(dt.now())
+    state['time_since_awake'] = str(timedelta(0))
 
 def _gotosleep(dummy,state):
     state['is_awake'] = False
+    state['awake_time'] = -1
+    state['time_since_awake'] = str(timedelta(0))
 
 def scheduler(dummy,state):
     with open("scheduler.log", "a") as fsch:
@@ -37,8 +42,8 @@ def scheduler(dummy,state):
                         eval("schedule.every().{}.at(state['weekend_sleep_time']).do(_gotosleep,1,state)".format(weekend))
                         eval("schedule.every().{}.at(state['weekend_wake_time']).do(_wakeup,1,state)".format(weekend))
 
-                    nowtm = float(datetime.now().hour) + float(datetime.now().minute)/60.
-                    weekday_or_weekend = "weekday" if datetime.today().weekday() < 5 else "weekend"
+                    nowtm = float(dt.now().hour) + float(dt.now().minute)/60.
+                    weekday_or_weekend = "weekday" if dt.today().weekday() < 5 else "weekend"
                     sleeptm = state['{}_sleep_time'.format(weekday_or_weekend)].split(":")
                     sleeptm = float(sleeptm[0]) + float(sleeptm[1])/60.
                     waketm = state['{}_wake_time'.format(weekday_or_weekend)].split(":")
@@ -66,6 +71,9 @@ def scheduler(dummy,state):
             last_weekend_sleep = state['weekend_sleep_time']
             last_sched_switch = state['sched_enabled']
             last_sched_disabled_op = state['sched_disabled_op']
+            awake_time = state['awake_time']
+            state['time_since_awake'] = str(dt.now() - dt.strptime(awake_time, "%Y-%m-%d %H:%M:%S.%f")) if awake_time != -1 else str(timedelta(0))
+
 
             schedule.run_pending()
 

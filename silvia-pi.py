@@ -1,4 +1,5 @@
 from multiprocessing import Process, Manager
+from datetime import timedelta
 import time
 from time import sleep
 import config as conf
@@ -26,6 +27,8 @@ if __name__ == '__main__':
     manager = Manager()
     pidstate = manager.dict()
     pidstate['is_awake'] = True
+    pidstate['awake_time'] = -1
+    pidstate['time_since_awake'] = str(timedelta(0))
     pidstate['sched_enabled'] = conf.sched_enabled
     pidstate['sched_disabled_op'] = conf.sched_disabled_op
     pidstate['weekday_sleep_time'] = conf.weekday_sleep_time
@@ -33,6 +36,7 @@ if __name__ == '__main__':
     pidstate['weekend_sleep_time'] = conf.weekend_sleep_time
     pidstate['weekend_wake_time'] = conf.weekend_wake_time
     pidstate['i'] = 0
+    pidstate['time_outside_target_temp'] = str(timedelta(0))
     pidstate['settemp'] = conf.set_temp
     pidstate['avgpid'] = 0.
     pidstate['curr_nanct'] = 0

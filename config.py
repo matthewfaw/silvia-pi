@@ -10,6 +10,9 @@ he_pin = 26
 # Default goal temperature
 #set_temp = 221.
 set_temp = 210.
+set_temp_tolerance = 2.
+cold_state = 100
+warm_state = 200
 
 # Default sleep/wake times
 sched_enabled = True
@@ -23,6 +26,8 @@ schedule_sample_time = 1
 
 # Main loop sample rate in seconds
 sample_time = 0.5
+# Number of seconds until machine changes between hot & cold states.
+num_secs_for_state_change = 60*15
 
 # Number of times to allow RuntimeError("short circuit to ground")
 temp_reading_errors = 100
