@@ -141,6 +141,18 @@ $(document).ready(function(){
     $("#btnTimerEnable").hide();
   });
 
+  $("#schedDisabledWakeup").click(function(){
+    $.post("/sched_disabled_op",{ op: "wakeup" });
+      $("#schedDisabledWakeup").removeClass("btn-outline-primary").addClass("btn-primary")
+      $("#schedDisabledGotosleep").removeClass("btn-primary").addClass("btn-outline-primary")
+  });
+
+  $("#schedDisabledGotosleep").click(function(){
+    $.post("/sched_disabled_op",{ op: "gotosleep" });
+      $("#schedDisabledGotosleep").removeClass("btn-outline-primary").addClass("btn-primary")
+      $("#schedDisabledWakeup").removeClass("btn-primary").addClass("btn-outline-primary")
+  });
+
 });
 
 setInterval(function() {
@@ -174,6 +186,13 @@ setInterval(function() {
          $("#targetTimer").hide();
          $("#awakeTime").hide();
          $("#awakeTimer").hide();
+        }
+        if (resp.sched_disabled_op === "wakeup") {
+          $("#schedDisabledWakeup").removeClass("btn-outline-primary").addClass("btn-primary")
+          $("#schedDisabledGotosleep").removeClass("btn-primary").addClass("btn-outline-primary")
+        } else {
+          $("#schedDisabledGotosleep").removeClass("btn-outline-primary").addClass("btn-primary")
+          $("#schedDisabledWakeup").removeClass("btn-primary").addClass("btn-outline-primary")
         }
         curtemp.append(new Date().getTime(), resp.tempf);
         settemp.append(new Date().getTime(), resp.settemp);

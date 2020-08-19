@@ -31,6 +31,7 @@ num_secs_for_state_change = 60*15
 
 # Number of times to allow RuntimeError("short circuit to ground")
 temp_reading_errors = 100
+gpio_errors = 100
 
 # PID Proportional, Integral, and Derivative values
 Pc = 3.4

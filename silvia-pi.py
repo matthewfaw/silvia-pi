@@ -38,6 +38,7 @@ if __name__ == '__main__':
     pidstate['i'] = 0
     pidstate['time_outside_target_temp'] = str(timedelta(0))
     pidstate['settemp'] = conf.set_temp
+    pidstate['num_he_failures'] = 0
     pidstate['avgpid'] = 0.
     pidstate['curr_nanct'] = 0
     pidstate['total_nanct'] = 0
