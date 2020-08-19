@@ -99,6 +99,7 @@ def slack_interact(dummy,state):
 
                 conversation_id = get_conversation_id(client=slack_web_client)
                 print("Monitoring Slack {} {} with conversation id {}".format(conf.slack_channel_type, conf.slack_channel_name, conversation_id), file=fslack)
+                send_message(message="All systems go! (noop)", client=slack_web_client, conversation_id=conversation_id)
 
                 while True:
                     last_processed_ts = state['slack_last_processed_ts']
