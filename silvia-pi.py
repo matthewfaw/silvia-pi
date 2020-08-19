@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     manager = Manager()
     pidstate = manager.dict()
-    pidstate['is_awake'] = True
+    pidstate['is_awake'] = False
     pidstate['awake_time'] = -1
     pidstate['time_since_awake'] = str(timedelta(0))
     pidstate['sched_enabled'] = conf.sched_enabled

@@ -28,13 +28,17 @@ def get_messages(client, conversation_id, since_ts):
         messages_to_process.extend([{k: r[k] for k in ['ts','user','text']} for r in messages_res['messages'] if r['ts'] > since_ts])
     return sorted(messages_to_process, key=lambda k: k['ts'])
 
-def send_message(client, conversation_id, message):
+def send_message(message, client=None, conversation_id=None):
+    client = get_client() if client is None else client
+    conversation_id = get_conversation_id(client=client) if conversation_id is None else conversation_id
     return client.chat_postMessage(channel="{}".format(conversation_id), text=message)
 
 def get_response_for(message, state, client, conversation_id):
     message_split = message.split(' ')
     message = message.lower()
-    if re.match(DispatchOptions.CURR_TEMP.value, message):
+    if re.match(DispatchOptions.NO_OP.value, message):
+        return dispatch(op=DispatchOptions.NO_OP, state=state)
+    elif re.match(DispatchOptions.CURR_TEMP.value, message):
         currtemp = dispatch(op=DispatchOptions.CURR_TEMP, state=state)
         return "The current temperature is {} F".format(currtemp)
     elif re.match(DispatchOptions.GET_SETTEMP.value, message):
@@ -72,12 +76,12 @@ def get_response_for(message, state, client, conversation_id):
         return "All stats: ```{}```".format(allstats)
     elif re.match(DispatchOptions.REBOOT.value, message):
         answer = "Rebooting..."
-        response = send_message(client=client, conversation_id=conversation_id, message=answer)
+        response = send_message(message=answer, client=client, conversation_id=conversation_id)
         dispatch(op=DispatchOptions.REBOOT, state=state)
         return
     elif re.match(DispatchOptions.SHUTDOWN.value, message):
         answer = "Shutting down..."
-        response = send_message(client=client, conversation_id=conversation_id, message=answer)
+        response = send_message(message=answer, client=client, conversation_id=conversation_id)
         dispatch(op=DispatchOptions.SHUTDOWN, state=state)
         return
     elif re.match(DispatchOptions.HC.value, message):
@@ -103,9 +107,13 @@ def slack_interact(dummy,state):
                     for message in messages_to_process:
                         print("Processing message: {}".format(message), file=fslack)
                         answer = get_response_for(message=message['text'], state=state, client=slack_web_client, conversation_id=conversation_id)
-                        response = send_message(client=slack_web_client, conversation_id=conversation_id, message=answer)
-                        print("Setting the last processed time to {}".format(response['ts']), file=fslack)
-                        state['slack_last_processed_ts'] = response['ts']
+                        if answer is not None:
+                            response = send_message(message=answer, client=slack_web_client, conversation_id=conversation_id)
+                            ts = response['ts']
+                        else:
+                            ts = message['ts']
+                        print("Setting the last processed time to {}".format(ts), file=fslack)
+                        state['slack_last_processed_ts'] = ts
                     sleep(conf.slack_sample_time)
         except:
             print("Failue in slack client... Retrying.")

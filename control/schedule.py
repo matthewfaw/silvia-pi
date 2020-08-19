@@ -4,13 +4,18 @@ import schedule
 from datetime import datetime as dt
 from datetime import timedelta
 import config as conf
+from control.slack import send_message
 
 def _wakeup(dummy,state):
+    if not state['is_awake']:
+        send_message(message="Waking up now! Get ready for a good time! (noop)")
     state['is_awake'] = True
     state['awake_time'] = str(dt.now())
     state['time_since_awake'] = str(timedelta(0))
 
 def _gotosleep(dummy,state):
+    if state['is_awake']:
+        send_message(message="Going to sleep! See ya l8r, g8r :P (noop)")
     state['is_awake'] = False
     state['awake_time'] = -1
     state['time_since_awake'] = str(timedelta(0))

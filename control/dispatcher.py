@@ -15,7 +15,8 @@ class DispatchOptions(Enum):
     REBOOT = r"^(reboot|restart)"
     SHUTDOWN = r"^shut[\ _]?down"
     HC = r"^(hc|healthcheck)"
-    LIST = r"(list|.*)"
+    NO_OP = r"^.*\(noop\)"
+    LIST = r"^(list|.*)"
 
 def dispatch(op, state, body=None):
     if op == DispatchOptions.CURR_TEMP:
@@ -38,7 +39,6 @@ def dispatch(op, state, body=None):
             return True
         elif sched.lower() == "false":
             state['sched_enabled'] = False
-            state['is_awake'] = True
             return False
         else:
             raise Exception('Invalid scheduler setting. Expecting True or False')
@@ -71,5 +71,7 @@ def dispatch(op, state, body=None):
         return '';
     elif op == DispatchOptions.HC:
         return "OK"
+    elif op == DispatchOptions.NO_OP:
+        return None
     else:
         return [r"{}: {}".format(op.name, op.value) for op in DispatchOptions]
