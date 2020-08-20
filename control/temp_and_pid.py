@@ -48,9 +48,9 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
     total_nanct=0
     last_nan_time=-1
     i=0
-    pidhist = deque([0.]*10)
+    pidhist = deque()
     avgpid = 0.
-    temphist = deque([0.]*5)
+    temphist = deque()
     avgtemp = 0.
     lastsettemp = state['settemp']
     iscold = True
@@ -80,7 +80,7 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
                     curr_nanct = 0
 
                 tempf = _c_to_f(tempc)
-                temphist.popleft()
+                temphist.popleft() if len(temphist) == conf.temp_history_length else None
                 temphist.append(tempf)
                 avgtemp = sum(temphist)/len(temphist)
 
@@ -104,13 +104,17 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
                 secs_since_cold = (i - lastcold) * conf.sample_time
                 secs_since_warm = (i - lastwarm) * conf.sample_time
 
-                if iscold and secs_since_cold > conf.num_secs_for_state_change:
+                if iscold and secs_since_cold > conf.num_secs_for_state_change and secs_since_warm < conf.num_secs_for_state_constant:
+                    print("cold -> hot")
+                    pid.clear()
                     pid = get_warm_pid(pid_enabled, state)
                     iscold = False
 
-                if not iscold and secs_since_warm > conf.num_secs_for_state_change: 
+                if not iscold and secs_since_warm > conf.num_secs_for_state_change and secs_since_cold < conf.num_secs_for_state_constant: 
+                    print("hot -> cold")
+                    pid.clear()
                     pid = get_cold_pid(pid_enabled, state)
-                    iscold = False
+                    iscold = True
 
                 if state['settemp'] != lastsettemp:
                     pid.SetPoint = state['settemp']
@@ -118,7 +122,7 @@ def pid_loop(dummy,state, temp_readings_enabled, pid_enabled):
 
                 pid.update(avgtemp)
                 pidout = pid.output
-                pidhist.popleft()
+                pidhist.popleft() if len(pidhist) == conf.pid_history_length else None
                 pidhist.append(pidout)
                 avgpid = sum(pidhist)/len(pidhist)
 

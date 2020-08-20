@@ -14,6 +14,9 @@ set_temp_tolerance = 2.
 cold_state = 100
 warm_state = 200
 
+pid_history_length = 10
+temp_history_length = 5
+
 # Default sleep/wake times
 sched_enabled = True
 sched_disabled_op = "wakeup"
@@ -28,6 +31,7 @@ schedule_sample_time = 1
 sample_time = 0.5
 # Number of seconds until machine changes between hot & cold states.
 num_secs_for_state_change = 60*15
+num_secs_for_state_constant = 60*1
 
 # Number of times to allow RuntimeError("short circuit to ground")
 temp_reading_errors = 100
