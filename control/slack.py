@@ -92,7 +92,7 @@ def get_response_for(message, state, client, conversation_id):
         return "The possible commands are: ```{}```".format(options)
 
 def slack_interact(dummy,state):
-    send_message(message="All systems go! (noop)")
+    num_welcome_messages = 0
     while True:
         try:
             with open('slack.log','a') as fslack:
@@ -100,7 +100,11 @@ def slack_interact(dummy,state):
 
                 conversation_id = get_conversation_id(client=slack_web_client)
                 print("Monitoring Slack {} {} with conversation id {}".format(conf.slack_channel_type, conf.slack_channel_name, conversation_id), file=fslack)
-                #send_message(message="All systems go! (noop)", client=slack_web_client, conversation_id=conversation_id)
+                if num_welcome_messages == 0:
+                    send_message(message="All systems go! (noop)", client=slack_web_client, conversation_id=conversation_id)
+                    num_welcome_messages += 1
+                else:
+                    print("Skipping sending the welcome message!")
 
                 while True:
                     last_processed_ts = state['slack_last_processed_ts']
