@@ -64,6 +64,31 @@ $(document).ready(function(){
     $(".adv").toggle();
   });
 
+  $(".allStats").hide();
+  $("#toggleAllStats").click(function(){
+      $("#tableAllStatsBody").children("tr").remove()
+      $.getJSON({
+          url: "/allstats",
+          timeout: 500,
+          success: function ( resp ) {
+              for (var key in resp) {
+                  splitVal = String(resp[key]).split(".")
+                  if (splitVal.length === 1) {
+                      valToUse = splitVal[0]
+                  } else {
+                      valToUse = splitVal[0] + "." + splitVal[1].substring(0,2)
+                  }
+                  $("#tableAllStatsBody").append(`<tr><td>${key}</td><td>${valToUse}</td></tr>`)
+              }
+          }
+      })
+      if ($(".allStats").is(":hidden")) {
+          $(".allStats").show()
+      } else {
+          $(".allStats").hide()
+      }
+  });
+
   refreshinputs();
 
   $("#inputSetTemp").change(function(){
