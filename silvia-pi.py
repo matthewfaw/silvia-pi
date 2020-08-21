@@ -45,11 +45,13 @@ if __name__ == '__main__':
     pidstate['last_nan_time'] = -1
     pidstate['slack_last_processed_ts'] = "{:.6f}".format(time.time())
 
+    threads = []
     if args.with_scheduler:
         print("Starting Scheduler thread...")
         s = Process(target=scheduler,args=(1,pidstate))
         s.daemon = True
         s.start()
+        threads.append(s)
     else:
         s = None
 
@@ -58,6 +60,7 @@ if __name__ == '__main__':
         p = Process(target=pid_loop,args=(1,pidstate, args.with_temp, args.with_pid))
         p.daemon = True
         p.start()
+        threads.append(p)
     else:
         p = None
 
@@ -66,6 +69,7 @@ if __name__ == '__main__':
         h = Process(target=he_control_loop,args=(1,pidstate))
         h.daemon = True
         h.start()
+        threads.append(h)
     else:
         h = None
 
@@ -75,6 +79,7 @@ if __name__ == '__main__':
         r = Process(target=rest_server,args=(1, pidstate, basedir))
         r.daemon = True
         r.start()
+        threads.append(r)
     else:
         r = None
 
@@ -83,7 +88,14 @@ if __name__ == '__main__':
         slack = Process(target=slack_interact,args=(1, pidstate))
         slack.daemon = True
         slack.start()
+        threads.append(slack)
     else:
         slack = None
 
-    watch(args, p, h, r, s, slack, pidstate)
+    try:
+        watch(args, p, h, r, s, slack, pidstate)
+    finally:
+        print("Goodbye to all!")
+        for thread in threads:
+            if thread.is_alive():
+                thread.terminate()

@@ -36,6 +36,7 @@ num_secs_for_state_constant = 60*1
 # Number of times to allow RuntimeError("short circuit to ground")
 temp_reading_errors = 100
 gpio_errors = 100
+server_hc_errors = 10
 
 # PID Proportional, Integral, and Derivative values
 Pc = 3.4

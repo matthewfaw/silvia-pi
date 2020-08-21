@@ -20,32 +20,19 @@ def watch(args, p, h, r, s, slack, pidstate):
     sleep(1)
 
     while _is_alive(args, p, h, r, s, slack):
-        curi = pidstate['i']
-        if curi == lasti:
-            piderr = piderr + 1
-        else:
-            piderr = 0
-
-        lasti = curi
-
-        if piderr > 9 and args.with_pid:
-            print('ERROR IN PID THREAD, RESTARTING')
-            p.terminate()
-
         try:
             hc = urlopen(urlhc,timeout=2)
         except:
-            weberrflag = 1
+            weberr += 1
         else:
             if hc.getcode() != 200 :
-                weberrflag = 1
+                weberr += 1
+            else:
+                weberr = 0
 
-        if weberrflag != 0:
-            weberr = weberr + 1
-
-        if weberr > 9 and args.with_server:
-            print('ERROR IN WEB SERVER THREAD, RESTARTING')
-            r.terminate()
+        if weberr > conf.server_hc_errors and args.with_server:
+            print('ERROR IN WEB SERVER THREAD, exiting')
+            break
 
         weberrflag = 0
 
