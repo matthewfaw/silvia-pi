@@ -13,7 +13,7 @@ if [[ $(whoami) != 'root' ]]; then
 fi
 
 echo "Installing some useful packages"
-apt-get -y install rpi-update git build-essential python-dev python-smbus python-pip logrotate vim tmux
+apt-get -y install rpi-update git build-essential python-dev python-smbus python-pip vim tmux
 
 echo "Enable ssh"
 systemctl enable ssh
@@ -36,9 +36,6 @@ MYIP=$(hostname -I | cut -f1 -d ' ')
 echo "Print+log the IP: ${MYIP}"
 echo "$MYIP" >> ip.log
 
-echo "Create logrotate config..."
-./create_logrotate_from_script_references.sh "/etc/logrotate.d/silvia-pi-logrotate"
-
 if [ -d "ivPID" ]; then
   echo "Determined that ivPID library has already been installed. Skipping this step."
 else
@@ -52,7 +49,7 @@ pip3 install --upgrade -r $BASEDIR/requirements.txt
 
 if ! grep silvia-pi.py /etc/rc.local; then
   echo "Adding entry to /etc/rc.local"
-  sed -i.bak 's|^exit 0$|. /etc/environment\n\npython3 '"${BASEDIR}"'/silvia-pi.py > '"${BASEDIR}"'/silvia-pi.log 2>\&1 \&\n\nexit 0|g' /etc/rc.local
+  sed -i.bak 's|^exit 0$|. /etc/environment\n\npython3 '"${BASEDIR}"'/silvia-pi.py \&\n\nexit 0|g' /etc/rc.local
   chmod 755 /etc/rc.local
 else
   echo "Skipping /etc/rc.local modification since entry already found"

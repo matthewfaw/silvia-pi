@@ -1,6 +1,8 @@
 from bottle import route, run, get, post, request, static_file, abort
 import config as conf
 from control.dispatcher import dispatch, DispatchOptions
+import logging
+import sys
 
 def rest_server(dummy, state, basedir):
 
@@ -81,9 +83,9 @@ def rest_server(dummy, state, basedir):
     def healthcheck():
         return dispatch(op=DispatchOptions.HC, state=state)
 
-    with open('webserver.log','a') as fweb:
-        print("basedir:",basedir,file=fweb)
-        wwwdir = basedir+'/www/'
-        print("wwwdir:",wwwdir,file=fweb)
-        print("running the server now...",file=fweb)
-        run(host='0.0.0.0',port=conf.port,server='cheroot')
+
+    logging.getLogger('server').info("basedir: {}".format(basedir))
+    wwwdir = basedir+'/www/'
+    logging.getLogger('server').info("wwwdir: {}".format(wwwdir))
+    logging.getLogger('server').info("running the server now...")
+    run(host='0.0.0.0',port=conf.port,server='cheroot')

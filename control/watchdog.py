@@ -1,6 +1,8 @@
 from urllib.request import urlopen
 import config as conf
 from time import sleep
+import logging
+import sys
 
 def _is_alive(args, p, h, r, s, slack):
     return (not args.with_scheduler or s.is_alive())\
@@ -10,7 +12,7 @@ def _is_alive(args, p, h, r, s, slack):
             and (not args.with_slack or slack.is_alive())
 
 def watch(args, p, h, r, s, slack, pidstate):
-    print("Starting Watchdog...")
+    logging.getLogger('watchdog').info("Starting Watchdog...")
     piderr = 0
     weberr = 0
     weberrflag = 0
@@ -24,14 +26,16 @@ def watch(args, p, h, r, s, slack, pidstate):
             hc = urlopen(urlhc,timeout=2)
         except:
             weberr += 1
+            sleep(1)
         else:
             if hc.getcode() != 200 :
                 weberr += 1
+                sleep(1)
             else:
                 weberr = 0
 
         if weberr > conf.server_hc_errors and args.with_server:
-            print('ERROR IN WEB SERVER THREAD, exiting')
+            logging.getLogger('watchdog').error('ERROR IN WEB SERVER THREAD, exiting')
             break
 
         weberrflag = 0

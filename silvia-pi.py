@@ -5,6 +5,9 @@ from time import sleep
 import config as conf
 import argparse
 import os
+import sys
+import logging
+import logging.handlers
 
 from control.schedule import scheduler
 from control.temp_and_pid import pid_loop
@@ -22,7 +25,29 @@ if __name__ == '__main__':
     parser.add_argument("--with-server", type=bool, default=True, required=False, help="Indicates whether or not server should be started")
     parser.add_argument("--with-slack", type=bool, default=True, required=False, help="Indicates whether or not slack integration should be started")
     args = parser.parse_args()
-    print("CLI Args:",args)
+    
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", '%Y-%m-%dT%H:%M:%SZ')
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.DEBUG)
+
+    file_handler = {}
+    for key, fname in conf.log_files.items():
+        thislogger = logging.getLogger(key)
+
+        handler = logging.handlers.RotatingFileHandler("{}/{}".format(conf.basedir, fname), maxBytes=conf.log_maxbytes, backupCount=5, encoding='utf-8')
+        handler.setFormatter(formatter)
+        handler.setLevel(conf.log_level)
+        file_handler[key] = handler
+
+        thislogger.setLevel(conf.log_level)
+        thislogger.addHandler(console_handler)
+        thislogger.addHandler(handler)
+
+    logger = logging.getLogger("main")
+
+    logger.info("CLI Args: {}".format(args))
 
     manager = Manager()
     pidstate = manager.dict()
@@ -47,7 +72,7 @@ if __name__ == '__main__':
 
     threads = []
     if args.with_scheduler:
-        print("Starting Scheduler thread...")
+        logger.info("Starting Scheduler thread...")
         s = Process(target=scheduler,args=(1,pidstate))
         s.daemon = True
         s.start()
@@ -56,7 +81,7 @@ if __name__ == '__main__':
         s = None
 
     if args.with_pid or args.with_temp:
-        print("Starting PID thread... Temp readings enabled={}, PID enabled={}".format(args.with_temp, args.with_pid))
+        logger.info("Starting PID thread... Temp readings enabled={}, PID enabled={}".format(args.with_temp, args.with_pid))
         p = Process(target=pid_loop,args=(1,pidstate, args.with_temp, args.with_pid))
         p.daemon = True
         p.start()
@@ -65,7 +90,7 @@ if __name__ == '__main__':
         p = None
 
     if args.with_he:
-        print("Starting HE Control thread...")
+        logger.info("Starting HE Control thread...")
         h = Process(target=he_control_loop,args=(1,pidstate))
         h.daemon = True
         h.start()
@@ -74,7 +99,7 @@ if __name__ == '__main__':
         h = None
 
     if args.with_server:
-        print("Starting REST Server thread...")
+        logger.info("Starting REST Server thread...")
         basedir = os.path.dirname(os.path.realpath(__file__))
         r = Process(target=rest_server,args=(1, pidstate, basedir))
         r.daemon = True
@@ -84,7 +109,7 @@ if __name__ == '__main__':
         r = None
 
     if args.with_slack:
-        print("Starting Slack interaction thread...")
+        logger.info("Starting Slack interaction thread...")
         slack = Process(target=slack_interact,args=(1, pidstate))
         slack.daemon = True
         slack.start()
@@ -95,7 +120,7 @@ if __name__ == '__main__':
     try:
         watch(args, p, h, r, s, slack, pidstate)
     finally:
-        print("Goodbye to all!")
+        logger.info("Goodbye to all!")
         for thread in threads:
             if thread.is_alive():
                 thread.terminate()

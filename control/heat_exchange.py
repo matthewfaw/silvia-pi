@@ -2,9 +2,9 @@ from time import sleep
 import RPi.GPIO as GPIO
 import config as conf
 import sys
+import logging
 
 def he_control_loop(dummy,state):
-
     num_he_failures = 0
     while True:
         try:
@@ -39,14 +39,14 @@ def he_control_loop(dummy,state):
                         sleep(1)
 
         finally:
-            print("Encountered a failure in GPIO output!!")
+            logging.getLogger('he').warn("Encountered a failure in GPIO output!!")
             if num_he_failures > conf.gpio_errors:
-                print("Cleaning up the GPIO and exiting gracefully")
+                logging.getLogger('he').error("Cleaning up the GPIO and exiting gracefully")
                 GPIO.output(conf.he_pin,0)
                 GPIO.cleanup()
                 sys.exit("Too many GPIO Errors...")
             else:
-                print("Retrying...")
+                logging.getLogger('he').warn("Retrying...")
                 num_he_failures += 1
                 state['num_he_failures'] = num_he_failures
                 sleep(1)

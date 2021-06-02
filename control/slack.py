@@ -4,6 +4,8 @@ from slack import WebClient
 from time import sleep
 from control.dispatcher import dispatch, DispatchOptions
 import re
+import logging
+import sys
 
 def get_client():
     return WebClient(token=os.environ['SLACK_BOT_TOKEN'])
@@ -93,34 +95,34 @@ def get_response_for(message, state, client, conversation_id):
 
 def slack_interact(dummy,state):
     num_welcome_messages = 0
+    sleep(conf.startup_sleep_time)
     while True:
         try:
-            with open('slack.log','a') as fslack:
-                slack_web_client = get_client()
+            slack_web_client = get_client()
 
-                conversation_id = get_conversation_id(client=slack_web_client)
-                print("Monitoring Slack {} {} with conversation id {}".format(conf.slack_channel_type, conf.slack_channel_name, conversation_id), file=fslack)
-                if num_welcome_messages == 0:
-                    send_message(message="All systems go! (noop)", client=slack_web_client, conversation_id=conversation_id)
-                    num_welcome_messages += 1
-                else:
-                    print("Skipping sending the welcome message!")
+            conversation_id = get_conversation_id(client=slack_web_client)
+            logging.getLogger('slack').info("Monitoring Slack {} {} with conversation id {}".format(conf.slack_channel_type, conf.slack_channel_name, conversation_id))
+            if num_welcome_messages == 0:
+                send_message(message="All systems go! (noop)", client=slack_web_client, conversation_id=conversation_id)
+                num_welcome_messages += 1
+            else:
+                logging.getLogger('slack').info("Skipping sending the welcome message!")
 
-                while True:
-                    last_processed_ts = state['slack_last_processed_ts']
-                    messages_to_process = get_messages(client=slack_web_client, conversation_id=conversation_id, since_ts=last_processed_ts)
+            while True:
+                last_processed_ts = state['slack_last_processed_ts']
+                messages_to_process = get_messages(client=slack_web_client, conversation_id=conversation_id, since_ts=last_processed_ts)
 
-                    for message in messages_to_process:
-                        print("Processing message: {}".format(message), file=fslack)
-                        answer = get_response_for(message=message['text'], state=state, client=slack_web_client, conversation_id=conversation_id)
-                        if answer is not None:
-                            response = send_message(message=answer, client=slack_web_client, conversation_id=conversation_id)
-                            ts = response['ts']
-                        else:
-                            ts = message['ts']
-                        print("Setting the last processed time to {}".format(ts), file=fslack)
-                        state['slack_last_processed_ts'] = ts
-                    sleep(conf.slack_sample_time)
+                for message in messages_to_process:
+                    logging.getLogger('slack').info("Processing message: {}".format(message))
+                    answer = get_response_for(message=message['text'], state=state, client=slack_web_client, conversation_id=conversation_id)
+                    if answer is not None:
+                        response = send_message(message=answer, client=slack_web_client, conversation_id=conversation_id)
+                        ts = response['ts']
+                    else:
+                        ts = message['ts']
+                    logging.getLogger('slack').info("Setting the last processed time to {}".format(ts))
+                    state['slack_last_processed_ts'] = ts
+                sleep(conf.slack_sample_time)
         except:
-            print("Failue in slack client... Retrying.")
+            logging.getLogger('slack').warn("Failue in slack client... Retrying.")
             sleep(conf.slack_sample_time)

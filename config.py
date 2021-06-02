@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import logging, os
+
 # Raspberry Pi SPI Port and Device
 spi_port = 0
 spi_dev = 0
@@ -9,7 +11,7 @@ he_pin = 26
 
 # Default goal temperature
 #set_temp = 221.
-set_temp = 210.
+set_temp = 203.
 set_temp_tolerance = 2.
 cold_state = 100
 warm_state = 200
@@ -17,12 +19,14 @@ warm_state = 200
 pid_history_length = 10
 temp_history_length = 5
 
+startup_sleep_time = 1
+
 # Default sleep/wake times
 sched_enabled = True
 sched_disabled_op = "wakeup"
 #sched_disabled_op = "gotosleep"
-weekday_wake_time = '06:30'
-weekday_sleep_time = '09:45'
+weekday_wake_time = '07:30'
+weekday_sleep_time = '10:30'
 weekend_wake_time = '10:00'
 weekend_sleep_time = '12:30'
 schedule_sample_time = 1
@@ -62,3 +66,19 @@ slack_channel_type="im"
 #slack_channel_name="general"
 slack_channel_name="matthewfaw"
 slack_sample_time=5
+
+# Logging info
+log_level = logging.INFO
+log_maxbytes = int(1e7)
+#log_level = logging.DEBUG
+basedir=os.path.dirname(os.path.realpath(__file__))
+log_files = {
+        "main": "silvia-pi.log",
+        "pid": "pid.log",
+        "dummy": "dummy.log",
+        "he": "heat_exchange.log",
+        "schedule": "scheduler.log",
+        "server": "webserver.log",
+        "slack": "slack.log",
+        "watchdog": "watchdog.log",
+        }

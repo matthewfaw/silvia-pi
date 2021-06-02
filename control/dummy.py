@@ -1,7 +1,9 @@
+import logging
+import config as conf
 
 class DummyPID:
     def __init__(self, P, I, D):
-        print("WARNING: Dummy PID is being used. No actions will be taken..")
+        logging.getLogger('dummy').warn("WARNING: Dummy PID is being used. No actions will be taken..")
         self.SetPoint = 0.
         self.output = 0.
         self.PTerm = 0.
@@ -23,17 +25,17 @@ class DummyPID:
 
 class DummySPI:
     def __init__(self, spi_port, spi_dev):
-        print("WARNING: Dummy SPI is being used. No actions will be taken..")
+        logging.getLogger('dummy').warn("WARNING: Dummy SPI is being used. No actions will be taken..")
 
 
 class DummyDigitalIO:
     def __init__(self, iopin):
-        print("WARNING: Dummy DigitalIO is being used. The returned temperatures will all be 0 C.")
+        logging.getLogger('dummy').warn("WARNING: Dummy DigitalIO is being used. The returned temperatures will all be 0 C.")
         self.gpiopin = iopin
 
 class DummySensor:
     def __init__(self, spi):
-        print("WARNING: Dummy sensor is being used. The returned temperatures will all be 0 C.")
+        logging.getLogger('dummy').warn("WARNING: Dummy sensor is being used. The returned temperatures will all be 0 C.")
         self.temperature = 0.
 
     def readTempC(self):
