@@ -31,9 +31,16 @@ def get_messages(client, conversation_id, since_ts):
     return sorted(messages_to_process, key=lambda k: k['ts'])
 
 def send_message(message, client=None, conversation_id=None):
-    client = get_client() if client is None else client
-    conversation_id = get_conversation_id(client=client) if conversation_id is None else conversation_id
-    return client.chat_postMessage(channel="{}".format(conversation_id), text=message)
+    for i in range(conf.slack_send_message_retry):
+        try:
+            client = get_client() if client is None else client
+            conversation_id = get_conversation_id(client=client) if conversation_id is None else conversation_id
+            return client.chat_postMessage(channel="{}".format(conversation_id), text=message)
+        except:
+            logging.getLogger('slack').warn("Failed to send message {} for {}th time...".format(message, i))
+            sleep(conf.slack_send_message_fail_sleep)
+    logging.getLogger('slack').error("Exceeded {} message retries... Cannot send message {}!".format(conf.slack_send_messge_retry, message))
+
 
 def get_response_for(message, state, client, conversation_id):
     message_split = message.split(' ')
@@ -124,5 +131,5 @@ def slack_interact(dummy,state):
                     state['slack_last_processed_ts'] = ts
                 sleep(conf.slack_sample_time)
         except:
-            logging.getLogger('slack').warn("Failue in slack client... Retrying.")
+            logging.getLogger('slack').warn("Failure in slack client... Retrying.")
             sleep(conf.slack_sample_time)

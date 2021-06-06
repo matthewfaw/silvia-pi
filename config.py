@@ -41,6 +41,8 @@ num_secs_for_state_constant = 60*1
 temp_reading_errors = 100
 gpio_errors = 100
 server_hc_errors = 100
+slack_send_message_retry = 100
+slack_send_message_fail_sleep = 1
 
 # PID Proportional, Integral, and Derivative values
 Pc = 3.4
